@@ -1,1 +1,0 @@
-jdk.attach,jdk.naming.rmi,openj9.sharedclasses

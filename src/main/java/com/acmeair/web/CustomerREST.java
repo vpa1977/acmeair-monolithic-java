@@ -77,7 +77,13 @@ public class CustomerREST {
 	@Path("/byid/{custid}")
 	@Produces("text/plain")
 	public /* Customer */ Response putCustomer(@CookieParam("sessionid") String sessionid, CustomerInfo customer) {
-	  
+
+		if (customer == null)
+		{
+			logger.severe("Missing customerInfo for session "+sessionid);
+			return Response.status(500).build();
+		}
+
 		String username = customer.get_id();
 		
 		if (!validate(username)) {

@@ -34,7 +34,7 @@ public class CustomerServiceImpl extends CustomerService implements MongoConstan
 	
 	@Override
 	public Long count() {
-		return customer.count();
+		return customer.countDocuments();
 	}
 		
 	@Override

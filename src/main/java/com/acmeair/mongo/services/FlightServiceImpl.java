@@ -67,17 +67,17 @@ public class FlightServiceImpl extends FlightService implements  MongoConstants 
 	
 	@Override
 	public Long countFlights() {
-		return flight.count();
+		return flight.countDocuments();
 	}
 	
 	@Override
 	public Long countFlightSegments() {
-		return flightSegment.count();
+		return flightSegment.countDocuments();
 	}
 	
 	@Override
 	public Long countAirports() {
-		return airportCodeMapping.count();
+		return airportCodeMapping.countDocuments();
 	}
 	
 	protected String getFlight(String flightId, String segmentId) {

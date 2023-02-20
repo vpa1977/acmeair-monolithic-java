@@ -4,14 +4,16 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
+import com.mongodb.MongoCredential;
+import com.mongodb.ServerAddress;
+import com.mongodb.client.MongoClients;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
-import com.mongodb.MongoCredential;
-import com.mongodb.ServerAddress;
+import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
 
 public class ConnectionManager implements MongoConstants {
@@ -63,6 +65,7 @@ public class ConnectionManager implements MongoConstants {
 		String mongoUser = System.getenv("MONGO_USER");
 
 		String mongoPassword = System.getenv("MONGO_PASSWORD");
+		ConnectionString mongoURI = new ConnectionString("mongodb://"+ hostname + ":"+ port);
 		try {
 
 			// If MONGO_MANUAL is set to true, it will set up the DB connection
@@ -71,9 +74,13 @@ public class ConnectionManager implements MongoConstants {
 				if (mongoUser != null) {
 					MongoCredential credential = MongoCredential.createCredential(mongoUser, dbname,
 							mongoPassword.toCharArray());
-					mongoClient = new MongoClient(new ServerAddress(hostname, port),Arrays.asList(credential));
+					MongoClientSettings settings = MongoClientSettings.builder()
+							.credential(credential)
+							.applyConnectionString(mongoURI)
+							.build();
+					mongoClient = MongoClients.create(settings);
 				}else {
-					mongoClient = new MongoClient(hostname, port);
+					mongoClient =MongoClients.create(mongoURI);
 				}
 			} else {
 				// Check if VCAP_SERVICES exist, and if it does, look up the url
@@ -95,18 +102,21 @@ public class ConnectionManager implements MongoConstants {
 					JSONObject credentials = (JSONObject) mongoService.get("credentials");
 					String url = (String) credentials.get("url");
 					logger.fine("service url = " + url);
-					MongoClientURI mongoURI = new MongoClientURI(url);
-					mongoClient = new MongoClient(mongoURI);
+					mongoURI = new ConnectionString(url);
+					mongoClient = MongoClients.create(mongoURI);
 					dbname = mongoURI.getDatabase();
 
 				}else {
-					mongoClient = new MongoClient(hostname, port);
+					mongoClient = MongoClients.create(mongoURI);
 				}
 			}
 			logger.fine("#### Mongo DB Database Name " + dbname + " ####");
 			db = mongoClient.getDatabase(dbname);
-			logger.info("#### Mongo DB Server " + mongoClient.getAddress().getHost() + " ####");
-			logger.info("#### Mongo DB Port " + mongoClient.getAddress().getPort() + " ####");
+
+			for (String host : mongoURI.getHosts())
+			{
+				logger.info("#### Mongo DB Server " + host + " ####");
+			}
 			logger.info("#### Mongo DB is created with DB name " + dbname + " ####");
 		} catch (Exception e) {
 			logger.severe("Caught Exception : " + e.getMessage());

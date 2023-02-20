@@ -15,6 +15,7 @@
 *******************************************************************************/
 package com.acmeair.service;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -26,12 +27,12 @@ import org.json.simple.parser.ParseException;
 
 public abstract class AuthService {
 	protected static final int DAYS_TO_ALLOW_SESSION = 1;
-	
+
 	@Inject
 	protected KeyGenerator keyGenerator;
-	
-	
-		
+
+
+
 	// TODO: Do I really need to create a JSONObject here or just return a Json string?
 	public JSONObject validateSession(String sessionid) {
 		String cSession = getSession(sessionid);
@@ -43,25 +44,23 @@ public abstract class AuthService {
 			Date now = new Date();
 			JSONObject sessionJson = (JSONObject) new JSONParser().parse(cSession);
 			String timeoutString = sessionJson.get("timeoutTime").toString();
-			JSONObject timeJson = (JSONObject) new JSONParser().parse(timeoutString);
-			
-			if (now.getTime() > (Long)timeJson.get("$date")) {
+			if (now.getTime() > (Long)new JSONParser().parse(timeoutString)) {
 				removeSession(cSession);
 				return null;
 			}
-			
+
 			return sessionJson;
 		}catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;
-		}		
+		}
 	}
-	
+
 	protected abstract String getSession(String sessionid);
-	
+
 	protected abstract void removeSession(String sessionJson);
-	
+
 	// TODO: Do I really need to create a JSONObject here or just return a Json string?
 	// TODO: Maybe simplify as Moss did, but need to change node.js version first
 	public JSONObject createSession(String customerId) {
@@ -71,25 +70,25 @@ public abstract class AuthService {
 		c.setTime(now);
 		c.add(Calendar.DAY_OF_YEAR, DAYS_TO_ALLOW_SESSION);
 		Date expiration = c.getTime();
-		
+
 		JSONObject sessionJson = null;
-		
+
 		try{
 			sessionJson = (JSONObject) new JSONParser().parse(createSession(sessionId, customerId, now, expiration));
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;
-		}	
+		}
 		return sessionJson;
 	}
-	
+
 	protected abstract String createSession(String sessionId, String customerId, Date creation, Date expiration);
 
 	public abstract void invalidateSession(String sessionid);
-	
+
 	public abstract Long countSessions();
 
-	public abstract void dropSessions(); 
+	public abstract void dropSessions();
 
 }

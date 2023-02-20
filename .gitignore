@@ -1,9 +1,7 @@
 bin/
-build/
-.settings/
-.metadata
-.classpath
-.project
-.gradle
-.DS_Store
 target
+.*
+*.war
+*.csv
+*.zip
+apache-jmeter-5.5/
