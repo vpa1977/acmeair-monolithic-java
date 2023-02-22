@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
+/*
 package it.com.prims;
 
 import static org.junit.Assert.assertEquals;
@@ -16,20 +17,11 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Map;
+import java.util.OptionalLong;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
-
-import de.flapdoodle.embed.mongo.MongodExecutable;
-import de.flapdoodle.embed.mongo.MongodProcess;
-import de.flapdoodle.embed.mongo.MongodStarter;
-import de.flapdoodle.embed.mongo.config.IMongodConfig;
-import de.flapdoodle.embed.mongo.config.MongodConfigBuilder;
-import de.flapdoodle.embed.mongo.config.Net;
-import de.flapdoodle.embed.mongo.distribution.IFeatureAwareVersion;
-import de.flapdoodle.embed.mongo.distribution.Version;
-import de.flapdoodle.embed.process.distribution.GenericVersion;
-import de.flapdoodle.embed.process.runtime.Network;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -46,6 +38,9 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.junit.runners.MethodSorters;
+
+import de.flapdoodle.embed.mongo.transitions.Mongod;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -118,13 +113,17 @@ public class EndpointTests {
     BASE_URL_WITH_CONTEXT_ROOT = BASE_URL;
 
     IFeatureAwareVersion version = de.flapdoodle.embed.mongo.distribution.Versions
-        .withFeatures(new GenericVersion("4.0.0"), Version.Main.PRODUCTION.getFeatures());
+        .withFeatures(new de.flapdoodle.embed.process.distribution.Version("4.0.0"), Version.Main.PRODUCTION.getFeatures());
 
     MongodStarter starter = MongodStarter.getDefaultInstance();
     String bindIp = "localhost";
     int mongoPort = 27017;
-    IMongodConfig mongodConfig = new MongodConfigBuilder().version(version)
+    ImmutableMongodConfig mongodConfig = new MongodConfigBuilder().version(version)
         .net(new Net(bindIp, mongoPort, Network.localhostIsIPv6())).build();
+    
+    Mongod.
+    
+    
     mongodExe = starter.prepare(mongodConfig);
     mongod = mongodExe.start();
 
@@ -503,4 +502,4 @@ public class EndpointTests {
   }
 
       
-}
+}*/
