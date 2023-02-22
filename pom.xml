@@ -26,6 +26,12 @@
   <packaging>war</packaging>
   <name>Acmeair :: Java</name>
 
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.7.3</version>
+    </parent>
+
   <properties>
     <version.maven-war-plugin>3.2.2</version.maven-war-plugin>
     <version.download-maven-plugin>1.4.0</version.download-maven-plugin>
@@ -39,15 +45,26 @@
 
   <build>
       <plugins>
+             <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <!-- Enable liberty-maven plugin -->
             <plugin>
                 <groupId>io.openliberty.tools</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
                 <version>3.3-M4</version>
                 <configuration>
-                    <configFile>src/main/liberty/config/server.xml</configFile>
-                    <serverEnvFile>src/main/liberty/config/server.env</serverEnvFile>
-                    <jvmOptionsFile>src/main/liberty/config/jvm.options</jvmOptionsFile>
+                    <configFile>docker/acmeair-liberty/config/server.xml</configFile>
+                    <serverEnvFile>docker/acmeair-liberty/config/server.env</serverEnvFile>
+                    <jvmOptionsFile>docker/acmeair-liberty/config/jvm.options</jvmOptionsFile>
                     <packageFile>${package.file}</packageFile>
                     <include>${packaging.type}</include>
                     <!-- tag::bootstrap[] -->
@@ -126,35 +143,58 @@
    </build>
 
   <dependencies>
-    <dependency>
-      <groupId>javax</groupId>
-      <artifactId>javaee-api</artifactId>
-      <scope>provided</scope>
-      <version>7.0</version>
+	  <dependency>
+    	<groupId>javax.annotation</groupId>
+    	<artifactId>javax.annotation-api</artifactId>
+	</dependency>
+	  <dependency>
+  		<groupId>com.google.code.gson</groupId>
+  		<artifactId>gson</artifactId>
+  		</dependency>
+      <dependency>
+          <groupId>org.mongodb</groupId>
+          <artifactId>mongodb-driver-sync</artifactId>
+          </dependency>
+      <dependency>
+          <groupId>org.mongodb</groupId>
+          <artifactId>bson</artifactId>
+          </dependency>
+      <dependency>
+          <groupId>commons-codec</groupId>
+          <artifactId>commons-codec</artifactId>
+          </dependency>
+      <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-tomcat</artifactId>
+          <scope>provided</scope>
+      </dependency>
+       <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.mongodb</groupId>
-      <artifactId>mongodb-driver-sync</artifactId>
-      <scope>compile</scope>
-      <version>4.9.0</version>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.mongodb</groupId>
-      <artifactId>bson</artifactId>
-      <scope>compile</scope>
-      <version>4.9.0</version>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-thymeleaf</artifactId>
     </dependency>
-    <!-- https://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple -->
     <dependency>
-      <groupId>com.googlecode.json-simple</groupId>
-      <artifactId>json-simple</artifactId>
-      <version>1.1.1</version>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-devtools</artifactId>
     </dependency>
     <!-- For tests -->
+      <!-- https://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple -->
+      <dependency>
+          <groupId>com.googlecode.json-simple</groupId>
+          <artifactId>json-simple</artifactId>
+          <version>1.1.1</version>
+      </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.13.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -191,13 +231,12 @@
         <dependency>
           <groupId>javax.xml.bind</groupId>
           <artifactId>jaxb-api</artifactId>
-          <version>2.3.0</version>
           <scope>test</scope>
         </dependency>
         <dependency>
           <groupId>de.flapdoodle.embed</groupId>
           <artifactId>de.flapdoodle.embed.mongo</artifactId>
-          <version>2.2.0</version>
+          <version>4.6.0</version>
           <scope>test</scope>
         </dependency>
         <dependency>
