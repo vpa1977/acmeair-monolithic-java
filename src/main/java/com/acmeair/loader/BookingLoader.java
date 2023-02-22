@@ -15,16 +15,15 @@
 *******************************************************************************/
 package com.acmeair.loader;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.acmeair.service.BookingService;
 
-
-@ApplicationScoped
+@Component
 public class BookingLoader {
 
-	@Inject
+	@Autowired
 	BookingService bookingService;
 
 	public void dropBookings() {				

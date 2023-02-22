@@ -9,10 +9,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
 import org.bson.Document;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.acmeair.mongo.MongoConstants;
 import com.acmeair.service.BookingService;
@@ -25,7 +25,7 @@ import com.mongodb.client.MongoDatabase;
 
 import com.acmeair.mongo.ConnectionManager;
 
-@ApplicationScoped
+@Component
 public class BookingServiceImpl implements BookingService, MongoConstants {
 
 	//private final static Logger logger = Logger.getLogger(BookingService.class.getName()); 
@@ -33,7 +33,7 @@ public class BookingServiceImpl implements BookingService, MongoConstants {
 	protected Logger logger =  Logger.getLogger(FlightService.class.getName());	
 	private MongoCollection<Document> booking;
 	
-	@Inject 
+	@Autowired 
 	KeyGenerator keyGenerator;
 	
 	@PostConstruct

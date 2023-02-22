@@ -5,9 +5,9 @@ import static com.mongodb.client.model.Filters.eq;
 import java.util.Date;
 
 import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
 
 import org.bson.Document;
+import org.springframework.stereotype.Component;
 
 import com.acmeair.mongo.MongoConstants;
 import com.acmeair.service.AuthService;
@@ -18,7 +18,7 @@ import com.acmeair.mongo.ConnectionManager;
 
 
 
-@ApplicationScoped
+@Component
 public class AuthServiceImpl extends AuthService implements MongoConstants {
 
 //	private final static Logger logger = Logger.getLogger(CustomerService.class.getName());

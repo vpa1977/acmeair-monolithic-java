@@ -21,33 +21,34 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
-@ApplicationScoped
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+@Component
 public class Loader {
 
-	@Inject FlightLoader flightLoader;
-	@Inject	CustomerLoader customerLoader;
-	@Inject	SessionLoader sessionLoader;
-	@Inject BookingLoader bookingLoader;
+	@Autowired FlightLoader flightLoader;
+	@Autowired CustomerLoader customerLoader;
+	@Autowired SessionLoader sessionLoader;
+	@Autowired BookingLoader bookingLoader;
 
 
 	public static String REPOSITORY_LOOKUP_KEY = "com.acmeair.repository.type";
 
 	private static Logger logger = Logger.getLogger(Loader.class.getName());
 
-	public String queryLoader() {			
+	public String queryLoader() {
 		String message = System.getProperty("loader.numCustomers");
 		if (message == null){
 			logger.info("The system property 'loader.numCustomers' has not been set yet. Looking up the default properties.");
 			lookupDefaults();
 			message = System.getProperty("loader.numCustomers");
-		}				
-		return message;	
+		}
+		return message;
 	}
-	
-	public String loadDB(long numCustomers) {		
+
+	public String loadDB(long numCustomers) {
 		String message = "";
 		if(numCustomers == -1)
 			message = execute();
@@ -55,44 +56,38 @@ public class Loader {
 			System.setProperty("loader.numCustomers", Long.toString(numCustomers));
 			message = execute(numCustomers);
 		}
-		return message;	
+		return message;
 	}
-	
-	public String loadCustomerDB(long numCustomers) {		
+
+	public String loadCustomerDB(long numCustomers) {
 		String message = "";
-		
+
 		System.setProperty("loader.numCustomers", Long.toString(numCustomers));
 		message = executeCustomerDB(numCustomers);
-		
-		return message;	
+
+		return message;
 	}
-	
-	public String loadFlightDB() {		
+
+	public String loadFlightDB() {
 		String message = "";
 			message = executeFlightDB();
-			return message;	
+			return message;
 	}
-	public String clearSessionDB() {		
+	public String clearSessionDB() {
 		String message = "";
-				
+
 		message = executeSessionDB();
-		
-		return message;	
+
+		return message;
 	}
-	
-	public String clearBookingDB() {		
+
+	public String clearBookingDB() {
 		String message = "";
 			message = executeBookingDB();
-			return message;	
+			return message;
 	}
-	
-	
-	public static void main(String args[]) throws Exception {
-		Loader loader = new Loader();
-		loader.execute();
-	}
-	
-	
+
+
 	private String execute() {
 		String numCustomers = System.getProperty("loader.numCustomers");
 		if (numCustomers == null){
@@ -102,10 +97,10 @@ public class Loader {
 		}
 		return execute(Long.parseLong(numCustomers));
 	}
-	
-	
+
+
 	private String execute(long numCustomers) {
-		
+
 
     	double length = 0;
 		try {
@@ -115,8 +110,8 @@ public class Loader {
 			flightLoader.dropFlights();
 			sessionLoader.dropSessions();
 			bookingLoader.dropBookings();
-			
-			
+
+
 			flightLoader.loadFlights();
 			logger.info("Start loading " +  numCustomers + " customers");
 			customerLoader.loadCustomers(numCustomers);
@@ -126,16 +121,16 @@ public class Loader {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-		}		
+		}
 		return "Loaded flights and "  +  numCustomers + " customers in " + length + " seconds";
 	}
-	
+
 	private String executeCustomerDB(long numCustomers) {
 		CustomerLoader customerLoader = new CustomerLoader();
 
     	double length = 0;
 		try {
-			long start = System.currentTimeMillis();		
+			long start = System.currentTimeMillis();
 			logger.info("Start loading " +  numCustomers + " customers");
 			customerLoader.dropCustomers();
 			customerLoader.loadCustomers(numCustomers);
@@ -145,36 +140,36 @@ public class Loader {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-		}		
+		}
 		return "Loaded "  +  numCustomers + " customers in " + length + " seconds";
 	}
-	
+
 	private String executeFlightDB() {
 		FlightLoader flightLoader = new FlightLoader();
-		
+
 
     	double length = 0;
 		try {
 			long start = System.currentTimeMillis();
 			logger.info("Start loading flights");
-			flightLoader.dropFlights();		
-			flightLoader.loadFlights();			
+			flightLoader.dropFlights();
+			flightLoader.loadFlights();
 			long stop = System.currentTimeMillis();
 			logger.info("Finished loading in " + (stop - start)/1000.0 + " seconds");
 			length = (stop - start)/1000.0;
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-		}		
+		}
 		return "Loaded flights in " + length + " seconds";
 	}
-	
+
 	private String executeSessionDB() {
 		SessionLoader sessionLoader = new SessionLoader();
 
     	double length = 0;
 		try {
-			long start = System.currentTimeMillis();		
+			long start = System.currentTimeMillis();
 			logger.info("Start clearing session");
 			sessionLoader.dropSessions();
 			long stop = System.currentTimeMillis();
@@ -183,16 +178,16 @@ public class Loader {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-		}		
+		}
 		return "Cleared sessions in " + length + " seconds";
 	}
-	
+
 	private String executeBookingDB() {
 		BookingLoader bookingLoader = new BookingLoader();
 
     	double length = 0;
 		try {
-			long start = System.currentTimeMillis();		
+			long start = System.currentTimeMillis();
 			logger.info("Start clearing session");
 			bookingLoader.dropBookings();
 			long stop = System.currentTimeMillis();
@@ -201,28 +196,28 @@ public class Loader {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-		}		
+		}
 		return "Cleared sessions in " + length + " seconds";
 	}
-	
-	
-	
+
+
+
 	private void lookupDefaults (){
 		Properties props = getProperties();
-		
+
         String numCustomers = props.getProperty("loader.numCustomers","100");
-    	System.setProperty("loader.numCustomers", numCustomers);		
+    	System.setProperty("loader.numCustomers", numCustomers);
 	}
-	
-	
+
+
 	private Properties getProperties(){
         /*
-         * Get Properties from loader.properties file. 
+         * Get Properties from loader.properties file.
          * If the file does not exist, use default values
          */
 		Properties props = new Properties();
 		String propFileName = "/loader.properties";
-		try{			
+		try{
 			InputStream propFileStream = Loader.class.getResourceAsStream(propFileName);
 			props.load(propFileStream);
 		//	props.load(new FileInputStream(propFileName));
@@ -237,12 +232,12 @@ public class Loader {
 	private void execute(String args[]) {
 		ApplicationContext ctx = null;
          //
-         // Get Properties from loader.properties file. 
+         // Get Properties from loader.properties file.
          // If the file does not exist, use default values
          //
 		Properties props = new Properties();
 		String propFileName = "/loader.properties";
-		try{			
+		try{
 			InputStream propFileStream = Loader.class.getResourceAsStream(propFileName);
 			props.load(propFileStream);
 		//	props.load(new FileInputStream(propFileName));
@@ -251,7 +246,7 @@ public class Loader {
 		}catch(IOException e){
 			logger.info("IOException - Property file " + propFileName + " not found.");
 		}
-		
+
         String numCustomers = props.getProperty("loader.numCustomers","100");
     	System.setProperty("loader.numCustomers", numCustomers);
 
@@ -267,7 +262,7 @@ public class Loader {
 		} catch (NamingException e) {
 			// e.printStackTrace();
 		}
-		
+
 		if (type != null) {
 			logger.info("Found repository in web.xml:" + type);
 		}
@@ -306,10 +301,10 @@ public class Loader {
 			logger.info("Did not find a matching config. Using default repository wxsdirect instead");
 			ctx = new AnnotationConfigApplicationContext(WXSDirectAppConfig.class);
 		}
-		
+
 		FlightLoader flightLoader = ctx.getBean(FlightLoader.class);
 		CustomerLoader customerLoader = ctx.getBean(CustomerLoader.class);
-		
+
 		try {
 			long start = System.currentTimeMillis();
 			logger.info("Start loading flights");

@@ -17,32 +17,29 @@ package com.acmeair.web;
 
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.acmeair.service.FlightService;
 
-@Path("/flights")
+@RestController
+@RequestMapping("/flights")
 public class FlightsREST {
 	
-	@Inject
+	@Autowired
 	private FlightService flightService;
 	
 	// TODO:  Consider a pure GET implementation of this service, but maybe not much value due to infrequent similar searches
-	@POST
-	@Path("/queryflights")
-	@Consumes({"application/x-www-form-urlencoded"})
-	@Produces("text/plain")
+	@RequestMapping(value = "/queryflights", method = RequestMethod.POST, produces = "text/plain", consumes = "application/x-www-form-urlencoded")
 	public String getTripFlights(
-			@FormParam("fromAirport") String fromAirport,
-			@FormParam("toAirport") String toAirport,
-			@FormParam("fromDate") DateParam fromDate,
-		      @FormParam("returnDate") DateParam returnDate,
-			@FormParam("oneWay") boolean oneWay
+			@RequestParam("fromAirport") String fromAirport,
+			@RequestParam("toAirport") String toAirport,
+			@RequestParam("fromDate") DateParam fromDate,
+			@RequestParam("returnDate") DateParam returnDate,
+			@RequestParam("oneWay") boolean oneWay
 			) {
 		
 		String options = "";

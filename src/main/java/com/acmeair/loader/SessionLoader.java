@@ -15,15 +15,18 @@
 *******************************************************************************/
 package com.acmeair.loader;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.acmeair.service.AuthService;
 
-@ApplicationScoped
+@Component
 public class SessionLoader {
 
-	@Inject
+	@Autowired
 	private AuthService authService;
 
 	public void dropSessions() {				

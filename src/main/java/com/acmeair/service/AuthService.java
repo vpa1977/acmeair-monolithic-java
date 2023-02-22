@@ -19,16 +19,15 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-import javax.inject.Inject;
-
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class AuthService {
 	protected static final int DAYS_TO_ALLOW_SESSION = 1;
 
-	@Inject
+	@Autowired
 	protected KeyGenerator keyGenerator;
 
 

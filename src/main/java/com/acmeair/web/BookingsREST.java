@@ -15,36 +15,33 @@
 *******************************************************************************/
 package com.acmeair.web;
 
-import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.acmeair.service.BookingService;
 
-@Path("/bookings")
+@RestController
+@RequestMapping("/customer")
 public class BookingsREST {
 
-	@Inject
+	@Autowired
 	private BookingService bs;
 	
-	@POST
-	@Consumes({"application/x-www-form-urlencoded"})
-	@Path("/bookflights")
-	@Produces("text/plain")
-	public /*BookingInfo*/ Response bookFlights(
-			@FormParam("userid") String userid,
-			@FormParam("toFlightId") String toFlightId,
-			@FormParam("toFlightSegId") String toFlightSegId,
-			@FormParam("retFlightId") String retFlightId,
-			@FormParam("retFlightSegId") String retFlightSegId,
-			@FormParam("oneWayFlight") boolean oneWay) {
+	@RequestMapping(value = "/bookflights", method = RequestMethod.POST, produces = "text/plain", consumes = "application/x-www-form-urlencoded")
+	public /*BookingInfo*/ ResponseEntity<String> bookFlights(
+			@RequestParam("userid") String userid,
+			@RequestParam("toFlightId") String toFlightId,
+			@RequestParam("toFlightSegId") String toFlightSegId,
+			@RequestParam("retFlightId") String retFlightId,
+			@RequestParam("retFlightSegId") String retFlightSegId,
+			@RequestParam("oneWayFlight") boolean oneWay) {
 		try {
 			String bookingIdTo = bs.bookFlight(userid, toFlightSegId, toFlightId);
 			
@@ -57,43 +54,38 @@ public class BookingsREST {
 			}else {
 				bookingInfo = "{\"oneWay\":true,\"departBookingId\":\"" + bookingIdTo + "\"}";
 			}
-			return Response.ok(bookingInfo).build();
+			return new ResponseEntity<>(bookingInfo, HttpStatus.OK);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 		
-	@GET
-	@Path("/byuser/{user}")
-	@Produces("text/plain")
-	public Response getBookingsByUser(@PathParam("user") String user) {
+	@RequestMapping(value = "/byuser/{user}", method = RequestMethod.GET, produces = "text/plain")
+	public ResponseEntity<String> getBookingsByUser(@PathVariable("user") String user) {
 		try {
-			return  Response.ok(bs.getBookingsByUser(user).toString()).build();
+			return new ResponseEntity<>(bs.getBookingsByUser(user).toString(), HttpStatus.OK);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
 
-	@POST
-	@Consumes({"application/x-www-form-urlencoded"})
-	@Path("/cancelbooking")
-	@Produces("text/plain")
-	public Response cancelBookingsByNumber(
-			@FormParam("number") String number,
-			@FormParam("userid") String userid) {
+	@RequestMapping(value = "/cancelbooking", method = RequestMethod.POST, produces = "text/plain", consumes = "application/x-www-form-urlencoded")
+	public ResponseEntity<String> cancelBookingsByNumber(
+			@RequestParam("number") String number,
+			@RequestParam("userid") String userid) {
 		try {
 			bs.cancelBooking(userid, number);
-			return Response.ok("booking " + number + " deleted.").build();
+			return new ResponseEntity<>("booking " + number + " deleted.", HttpStatus.OK);
 					
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 	

@@ -5,9 +5,9 @@ import static com.mongodb.client.model.Updates.combine;
 import static com.mongodb.client.model.Updates.set;
 
 import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
 
 import org.bson.Document;
+import org.springframework.stereotype.Component;
 
 import com.acmeair.mongo.MongoConstants;
 import com.acmeair.service.CustomerService;
@@ -17,15 +17,13 @@ import com.mongodb.client.MongoDatabase;
 
 import com.acmeair.mongo.ConnectionManager;
 
-
-
-@ApplicationScoped
+@Component
 public class CustomerServiceImpl extends CustomerService implements MongoConstants {	
 		
 //	private final static Logger logger = Logger.getLogger(CustomerService.class.getName()); 
 	
 	private MongoCollection<Document> customer;
-	
+
 	@PostConstruct
 	public void initialization() {	
 		MongoDatabase database = ConnectionManager.getConnectionManager().getDB();

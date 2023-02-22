@@ -15,18 +15,17 @@
 *******************************************************************************/
 package com.acmeair.service;
 
-import javax.inject.Inject;
-
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.acmeair.web.dto.CustomerInfo;
 
 public abstract class CustomerService {
 	protected static final int DAYS_TO_ALLOW_SESSION = 1;
 	
-	@Inject
+	@Autowired
 	protected KeyGenerator keyGenerator;
 	
 	public abstract void createCustomer(

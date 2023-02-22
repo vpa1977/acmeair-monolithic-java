@@ -75,8 +75,8 @@ public class ConnectionManager implements MongoConstants {
 					MongoCredential credential = MongoCredential.createCredential(mongoUser, dbname,
 							mongoPassword.toCharArray());
 					MongoClientSettings settings = MongoClientSettings.builder()
-							.credential(credential)
 							.applyConnectionString(mongoURI)
+							.credential(credential)
 							.build();
 					mongoClient = MongoClients.create(settings);
 				}else {

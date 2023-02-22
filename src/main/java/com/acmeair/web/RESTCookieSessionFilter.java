@@ -17,7 +17,6 @@ package com.acmeair.web;
 
 import java.io.IOException;
 
-import javax.inject.Inject;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -29,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.json.simple.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.acmeair.service.AuthService;
 
@@ -41,7 +41,7 @@ public class RESTCookieSessionFilter implements Filter {
 	private static final String LOADDB_PATH = "/rest/api/loader/load";
 	private static final String QUERY_PATH = "/rest/api/flights/queryflights";
 	
-	@Inject
+	@Autowired
 	AuthService authService;
 	
 	@Override
