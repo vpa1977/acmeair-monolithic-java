@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.acmeair.service.BookingService;
 
 @RestController
-@RequestMapping("/customer")
+@RequestMapping("/api/customer")
 public class BookingsREST {
 
 	@Autowired

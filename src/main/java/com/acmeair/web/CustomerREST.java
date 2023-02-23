@@ -23,18 +23,22 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.acmeair.AcmeAirConstants;
 import com.acmeair.service.CustomerService;
 import com.acmeair.service.FlightService;
 import com.acmeair.web.dto.CustomerInfo;
 
 @RestController
-@RequestMapping("/customer")
+@RequestMapping("/api/customer")
 public class CustomerREST {
 	
 	@Autowired
@@ -42,7 +46,6 @@ public class CustomerREST {
 	
 	@Autowired 
 	private HttpServletRequest request;
-
 
 	private boolean validate(String customerid)	{
 		String loginUser = (String) request.getAttribute(RESTCookieSessionFilter.LOGIN_USER);
@@ -55,7 +58,7 @@ public class CustomerREST {
 	protected Logger logger =  Logger.getLogger(FlightService.class.getName());
 
 	@RequestMapping(value = "/byid/{custid}", method = RequestMethod.GET, produces = "text/plain")
-	public ResponseEntity<String> getCustomer(@CookieValue("sessionid") String sessionid, @PathVariable("custid") String customerid) {
+	public ResponseEntity<String> getCustomer(@CookieValue(AcmeAirConstants.SESSIONID_COOKIE_NAME) String sessionid, @PathVariable("custid") String customerid) {
 		if(logger.isLoggable(Level.FINE)){
 			logger.fine("getCustomer : session ID " + sessionid + " userid " + customerid);
 		}
@@ -73,7 +76,7 @@ public class CustomerREST {
 	}
 
 	@RequestMapping(value = "/byid/{custid}", method = RequestMethod.POST, produces = "text/plain")
-	public /* Customer */ ResponseEntity<String> putCustomer(@CookieValue("sessionid") String sessionid, CustomerInfo customer) {
+	public /* Customer */ ResponseEntity<String> putCustomer(@CookieValue(AcmeAirConstants.SESSIONID_COOKIE_NAME) String sessionid, CustomerInfo customer) {
 
 		if (customer == null)
 		{

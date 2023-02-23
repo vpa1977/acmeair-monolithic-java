@@ -24,44 +24,43 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.acmeair.AcmeAirConstants;
 import com.acmeair.service.AuthService;
 import com.acmeair.service.CustomerService;
 import com.google.gson.JsonObject;
 
 
 @RestController
-@RequestMapping("/login")
+@RequestMapping("/api")
 public class LoginREST {
-	
-	public static String SESSIONID_COOKIE_NAME = "acmeair_sessionid";
-			
+
 	@Autowired
 	AuthService authService;
 
 	@Autowired
 	CustomerService customerService;
-	
+
 	@RequestMapping(value = "login", method = RequestMethod.POST, consumes = "application/x-www-form-urlencoded", produces = "text/plain")
 	public ResponseEntity<String> login(@RequestParam("login") String login, @RequestParam("password") String password) {
 		try {
 
 			boolean validCustomer = customerService.validateCustomer(login, password);
-			
+
 			if (!validCustomer) {
 				return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-			}	
-			
+			}
+
 			JsonObject sessionJson = authService.createSession(login);
-			return ResponseEntity.status(HttpStatus.OK).header("Set-Cookie", SESSIONID_COOKIE_NAME + "=" + sessionJson.get("_id").getAsString() + "; Path=/").body("logged in");
-	
+			return ResponseEntity.status(HttpStatus.OK).header("Set-Cookie", AcmeAirConstants.SESSIONID_COOKIE_NAME + "=" + sessionJson.get("_id").getAsString() + "; Path=/").body("logged in");
+
 		}
 		catch (Exception e) {
 			e.printStackTrace();
       		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 	}
-	
-	@RequestMapping(value = "logout", method = RequestMethod.GET, produces = "text/plain")
+
+	@RequestMapping(value = "login/logout", method = RequestMethod.GET, produces = "text/plain")
 	public ResponseEntity<String> logout(@RequestParam("login") String login, @CookieValue("acmeair_sessionid") String sessionid) {
 		try {
 			if (sessionid == null) {

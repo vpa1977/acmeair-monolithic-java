@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.acmeair.service.FlightService;
 
 @RestController
-@RequestMapping("/flights")
+@RequestMapping("/api/flights")
 public class FlightsREST {
 	
 	@Autowired
