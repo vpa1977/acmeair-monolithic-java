@@ -20,7 +20,7 @@ public class Util {
 
 	private static Gson gson = new GsonBuilder().create();
 
-	public static void registerService(){
+	public static void registerService() {
 		String PORT = System.getenv("VCAP_APP_PORT");
 		String NAME = System.getenv("SERVICE_NAME");
 		String BEARER_TOKEN = System.getenv("SD_TOKEN");
@@ -28,11 +28,11 @@ public class Util {
 		String space_id = System.getenv("space_id");
 
 		int TIME_TO_LIVE = 300;
-		int SLEEP_TIME= new Double(TIME_TO_LIVE*0.9*1000).intValue();
+		int SLEEP_TIME = new Double(TIME_TO_LIVE * 0.9 * 1000).intValue();
 
 		String requestUrl = SD_URL + "/api/v1/instances";
 
-		if (space_id != null){
+		if (space_id != null) {
 			String SERVICE_IP = "";
 			try {
 				SERVICE_IP = Inet4Address.getLocalHost().getHostAddress();
@@ -45,55 +45,57 @@ public class Util {
 			JsonArray empty = new JsonArray();
 
 			endpoint.add("type", new JsonPrimitive("http"));
-			endpoint.add("value", new JsonPrimitive(SERVICE_IP +":"+ PORT));
+			endpoint.add("value", new JsonPrimitive(SERVICE_IP + ":" + PORT));
 
-			jsonObj.add("tags",empty);
-			jsonObj.add("status",new JsonPrimitive("UP"));
+			jsonObj.add("tags", empty);
+			jsonObj.add("status", new JsonPrimitive("UP"));
 			jsonObj.add("service_name", new JsonPrimitive(NAME));
 			jsonObj.add("endpoint", endpoint);
 			jsonObj.add("ttl", new JsonPrimitive(TIME_TO_LIVE));
 
-			byte[] postData = gson.toJson(jsonObj).getBytes( StandardCharsets.UTF_8 );
+			byte[] postData = gson.toJson(jsonObj).getBytes(StandardCharsets.UTF_8);
 
 			URL url;
-			while (true){
+			while (true) {
 				try {
 					System.out.println("REGISTERING THIS SERVICE...");
-					url = new URL( requestUrl );
-					HttpURLConnection conn= (HttpURLConnection) url.openConnection();
-					conn.setDoOutput( true );
-					conn.setInstanceFollowRedirects( false );
-					conn.setRequestMethod( "POST" );
-					conn.setRequestProperty( "Content-Type", "application/json");
-					conn.setRequestProperty( "authorization", "Bearer " + BEARER_TOKEN);
-					conn.setRequestProperty( "X-Forwarded-Proto", "https");
-					try( DataOutputStream wr = new DataOutputStream( conn.getOutputStream())) {
-					   wr.write( postData );
-					   wr.flush();
-					   wr.close();
+					url = new URL(requestUrl);
+					HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+					conn.setDoOutput(true);
+					conn.setInstanceFollowRedirects(false);
+					conn.setRequestMethod("POST");
+					conn.setRequestProperty("Content-Type", "application/json");
+					conn.setRequestProperty("authorization", "Bearer " + BEARER_TOKEN);
+					conn.setRequestProperty("X-Forwarded-Proto", "https");
+					try (DataOutputStream wr = new DataOutputStream(conn.getOutputStream())) {
+						wr.write(postData);
+						wr.flush();
+						wr.close();
 					}
 
 					String line;
 					BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 					StringBuffer response = new StringBuffer();
-					while((line = br.readLine()) != null) {
+					while ((line = br.readLine()) != null) {
 						response.append(line);
 					}
 					br.close();
 
-					System.out.println("Response Code : " + conn.getResponseCode()
-							+ " Response : " + response.toString());
+					System.out.println(
+							"Response Code : " + conn.getResponseCode() + " Response : " + response.toString());
 
 					JsonObject responseJson = gson.fromJson(response.toString(), JsonObject.class);
 					JsonObject linkJson = gson.fromJson(responseJson.get("links").toString(), JsonObject.class);
-					try{
+					try {
 						sendHeartbeat(linkJson.get("heartbeat").getAsString(), BEARER_TOKEN, SLEEP_TIME);
-					}catch (Exception e){
-						System.out.println("HEARTBEAT FAILED AT " + e.getClass() + " WITH ERROR : " + e.getMessage() + " RE-REGISTERING");
+					} catch (Exception e) {
+						System.out.println("HEARTBEAT FAILED AT " + e.getClass() + " WITH ERROR : " + e.getMessage()
+								+ " RE-REGISTERING");
 					}
 				} catch (Exception e) {
 					int sleepTime = 10000;
-					System.out.println("REGISTRATION FAILED AT " + e.getClass() + " WITH ERROR : " + e.getMessage() + " RE-REGISTERING AFTER " + sleepTime/1000 + " sec  SLEEP");
+					System.out.println("REGISTRATION FAILED AT " + e.getClass() + " WITH ERROR : " + e.getMessage()
+							+ " RE-REGISTERING AFTER " + sleepTime / 1000 + " sec  SLEEP");
 					try {
 						Thread.sleep(sleepTime);
 					} catch (InterruptedException e1) {
@@ -105,34 +107,32 @@ public class Util {
 		}
 	}
 
-	public static void sendHeartbeat(String heartbeatUrl, String BEARER_TOKEN, int SLEEP_TIME) throws Exception{
+	public static void sendHeartbeat(String heartbeatUrl, String BEARER_TOKEN, int SLEEP_TIME) throws Exception {
 		URL url;
-		while (true){
+		while (true) {
 			Thread.sleep(SLEEP_TIME);
 			System.out.print("Heartbeat Check ");
-			url = new URL( heartbeatUrl );
-			HttpURLConnection conn= (HttpURLConnection) url.openConnection();
-			conn.setDoOutput( true );
-			conn.setInstanceFollowRedirects( false );
-			conn.setRequestMethod( "PUT" );
-			conn.setRequestProperty( "Content-Type", "application/json");
-			conn.setRequestProperty( "authorization", "Bearer " + BEARER_TOKEN);
-			conn.setRequestProperty( "X-Forwarded-Proto", "https");
+			url = new URL(heartbeatUrl);
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			conn.setDoOutput(true);
+			conn.setInstanceFollowRedirects(false);
+			conn.setRequestMethod("PUT");
+			conn.setRequestProperty("Content-Type", "application/json");
+			conn.setRequestProperty("authorization", "Bearer " + BEARER_TOKEN);
+			conn.setRequestProperty("X-Forwarded-Proto", "https");
 			conn.getOutputStream();
 			int responseCode = conn.getResponseCode();
-			System.out.println( "Response Code : " + responseCode);
-			if (responseCode != 200){
+			System.out.println("Response Code : " + responseCode);
+			if (responseCode != 200) {
 				throw new Not200Exception(Integer.toString(conn.getResponseCode()));
 			}
 		}
 	}
 
-	static class Not200Exception extends Exception
-	{
+	static class Not200Exception extends Exception {
 		private static final long serialVersionUID = 1L;
 
-		public Not200Exception(String message)
-		{
+		public Not200Exception(String message) {
 			super(message);
 		}
 	}
@@ -144,24 +144,24 @@ public class Util {
 
 		String requestUrl = SD_URL + "/api/v1/services/ServiceProxy";
 
-		while (true){
+		while (true) {
 			try {
 
 				System.out.println("GETTING SERVICE PROXY URL...");
-				URL url = new URL( requestUrl );
-				HttpURLConnection conn= (HttpURLConnection) url.openConnection();
-				conn.setRequestProperty( "authorization", "Bearer " + BEARER_TOKEN);
+				URL url = new URL(requestUrl);
+				HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+				conn.setRequestProperty("authorization", "Bearer " + BEARER_TOKEN);
 
 				String line;
 				BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 				StringBuffer response = new StringBuffer();
-				while((line = br.readLine()) != null) {
+				while ((line = br.readLine()) != null) {
 					response.append(line);
 				}
 				br.close();
 
-				System.out.println("SP Response Code : " + conn.getResponseCode()
-						+ " SP Response : " + response.toString());
+				System.out.println(
+						"SP Response Code : " + conn.getResponseCode() + " SP Response : " + response.toString());
 
 				JsonObject responseJson = gson.fromJson(response.toString(), JsonObject.class);
 				JsonArray instancesJson = gson.fromJson(responseJson.get("instances").getAsString(), JsonArray.class);
@@ -170,7 +170,8 @@ public class Util {
 				return endpointJson.get("value").getAsString();
 			} catch (Exception e) {
 				int sleepTime = 10000;
-				System.out.println("FAILED TO GET THE SERVICE PROXY AT " + e.getClass() + " WITH ERROR : " + e.getMessage() + " RE-TRYING AFTER " + sleepTime/1000 + " sec  SLEEP");
+				System.out.println("FAILED TO GET THE SERVICE PROXY AT " + e.getClass() + " WITH ERROR : "
+						+ e.getMessage() + " RE-TRYING AFTER " + sleepTime / 1000 + " sec  SLEEP");
 				try {
 					Thread.sleep(sleepTime);
 				} catch (InterruptedException e1) {

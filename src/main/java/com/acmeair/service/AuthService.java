@@ -30,12 +30,11 @@ public abstract class AuthService {
 
 	@Autowired
 	protected KeyGenerator keyGenerator;
-	
+
 	private Gson gson = new GsonBuilder().create();
 
-
-
-	// TODO: Do I really need to create a JSONObject here or just return a Json string?
+	// TODO: Do I really need to create a JSONObject here or just return a Json
+	// string?
 	public JsonObject validateSession(String sessionid) {
 		String cSession = getSession(sessionid);
 		if (cSession == null) {
@@ -57,7 +56,8 @@ public abstract class AuthService {
 
 	protected abstract void removeSession(String sessionJson);
 
-	// TODO: Do I really need to create a JSONObject here or just return a Json string?
+	// TODO: Do I really need to create a JSONObject here or just return a Json
+	// string?
 	// TODO: Maybe simplify as Moss did, but need to change node.js version first
 	public JsonObject createSession(String customerId) {
 		String sessionId = keyGenerator.generate().toString();
@@ -69,7 +69,7 @@ public abstract class AuthService {
 
 		JsonObject sessionJson = null;
 
-		try{
+		try {
 			sessionJson = gson.fromJson(createSession(sessionId, customerId, now, expiration), JsonObject.class);
 		} catch (JsonSyntaxException e) {
 			// TODO Auto-generated catch block

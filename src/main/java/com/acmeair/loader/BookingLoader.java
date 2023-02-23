@@ -26,8 +26,8 @@ public class BookingLoader {
 	@Autowired
 	BookingService bookingService;
 
-	public void dropBookings() {				
-			bookingService.dropBookings();
+	public void dropBookings() {
+		bookingService.dropBookings();
 	}
 
 }

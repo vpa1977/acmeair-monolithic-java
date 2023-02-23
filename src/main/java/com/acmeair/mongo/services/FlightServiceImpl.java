@@ -45,20 +45,19 @@ import com.mongodb.client.MongoDatabase;
 import com.acmeair.mongo.ConnectionManager;
 
 @Component
-public class FlightServiceImpl extends FlightService implements  MongoConstants {
+public class FlightServiceImpl extends FlightService implements MongoConstants {
 
-	//private final static Logger logger = Logger.getLogger(FlightService.class.getName()); 
-	
+	// private final static Logger logger =
+	// Logger.getLogger(FlightService.class.getName());
+
 	private MongoCollection<Document> flight;
 	private MongoCollection<Document> flightSegment;
 	private MongoCollection<Document> airportCodeMapping;
 	private Gson gson = new GsonBuilder().create();
-	
+
 	@Autowired
 	KeyGenerator keyGenerator;
-	
 
-	
 	@PostConstruct
 	public void initialization() {
 		MongoDatabase database = ConnectionManager.getConnectionManager().getDB();
@@ -66,79 +65,80 @@ public class FlightServiceImpl extends FlightService implements  MongoConstants 
 		flightSegment = database.getCollection("flightSegment");
 		airportCodeMapping = database.getCollection("airportCodeMapping");
 	}
-	
+
 	@Override
 	public Long countFlights() {
 		return flight.countDocuments();
 	}
-	
+
 	@Override
 	public Long countFlightSegments() {
 		return flightSegment.countDocuments();
 	}
-	
+
 	@Override
 	public Long countAirports() {
 		return airportCodeMapping.countDocuments();
 	}
-	
+
 	protected String getFlight(String flightId, String segmentId) {
 		return flight.find(eq("_id", flightId)).first().toJson();
 	}
 
 	@Override
-	protected  String getFlightSegment(String fromAirport, String toAirport){
+	protected String getFlightSegment(String fromAirport, String toAirport) {
 		try {
-			return flightSegment.find(new BasicDBObject("originPort", fromAirport).append("destPort", toAirport)).first().toJson();
-		}catch (java.lang.NullPointerException e){
-			if(logger.isLoggable(Level.FINE)){
+			return flightSegment.find(new BasicDBObject("originPort", fromAirport).append("destPort", toAirport))
+					.first().toJson();
+		} catch (java.lang.NullPointerException e) {
+			if (logger.isLoggable(Level.FINE)) {
 				logger.fine("getFlghSegment returned no flightSegment available");
 			}
 			return "";
 		}
 	}
-	
+
 	@Override
-	protected  List<String> getFlightBySegment(String segment, Date deptDate){
+	protected List<String> getFlightBySegment(String segment, Date deptDate) {
 		try {
 			Document segmentJson = Document.parse(segment);
 			MongoCursor<Document> cursor;
 
-			if(deptDate != null) {
-				if(logger.isLoggable(Level.FINE)){
-					logger.fine("getFlghtBySegment Search String : " + new BasicDBObject("flightSegmentId", segmentJson.get("_id")).append("scheduledDepartureTime", deptDate).toJson());
+			if (deptDate != null) {
+				if (logger.isLoggable(Level.FINE)) {
+					logger.fine("getFlghtBySegment Search String : "
+							+ new BasicDBObject("flightSegmentId", segmentJson.get("_id"))
+									.append("scheduledDepartureTime", deptDate).toJson());
 				}
-				cursor = flight.find(new BasicDBObject("flightSegmentId", 
-						segmentJson.get("_id"))
+				cursor = flight.find(new BasicDBObject("flightSegmentId", segmentJson.get("_id"))
 						.append("scheduledDepartureTime", deptDate)).iterator();
 			} else {
-				cursor = flight.find(eq("flightSegmentId", 
-						segmentJson.get("_id"))).iterator();
+				cursor = flight.find(eq("flightSegmentId", segmentJson.get("_id"))).iterator();
 			}
-			
-			List<String> flights =  new ArrayList<String>();
-			try{
-				while(cursor.hasNext()){
+
+			List<String> flights = new ArrayList<String>();
+			try {
+				while (cursor.hasNext()) {
 					Document tempDoc = cursor.next();
 
-					if(logger.isLoggable(Level.FINE)){
+					if (logger.isLoggable(Level.FINE)) {
 						logger.fine("getFlghtBySegment Before : " + tempDoc.toJson());
 					}
-					
-					Date deptTime = (Date)tempDoc.get("scheduledDepartureTime");
-					Date arvTime = (Date)tempDoc.get("scheduledArrivalTime");
+
+					Date deptTime = (Date) tempDoc.get("scheduledDepartureTime");
+					Date arvTime = (Date) tempDoc.get("scheduledArrivalTime");
 					tempDoc.remove("scheduledDepartureTime");
 					tempDoc.append("scheduledDepartureTime", deptTime.toString());
 					tempDoc.remove("scheduledArrivalTime");
-					tempDoc.append("scheduledArrivalTime", arvTime.toString());					
+					tempDoc.append("scheduledArrivalTime", arvTime.toString());
 
-					if(logger.isLoggable(Level.FINE)){
+					if (logger.isLoggable(Level.FINE)) {
 						logger.fine("getFlghtBySegment after : " + tempDoc.toJson());
 					}
-					
+
 					flights.add(tempDoc.append("flightSegment", segmentJson).toJson());
 				}
-			}finally{
+			} finally {
 				cursor.close();
 			}
 			return flights;
@@ -148,61 +148,50 @@ public class FlightServiceImpl extends FlightService implements  MongoConstants 
 			return null;
 		}
 	}
-	
 
 	@Override
-	public void storeAirportMapping(AirportCodeMapping mapping){
-		Document airportDoc = new Document("_id", mapping.getAirportCode())
-		        .append("airportName", mapping.getAirportName());
+	public void storeAirportMapping(AirportCodeMapping mapping) {
+		Document airportDoc = new Document("_id", mapping.getAirportCode()).append("airportName",
+				mapping.getAirportName());
 		airportCodeMapping.insertOne(airportDoc);
 	}
-	
+
 	@Override
 	public AirportCodeMapping createAirportCodeMapping(String airportCode, String airportName) {
-		return new AirportCodeMapping(airportCode,airportName);
+		return new AirportCodeMapping(airportCode, airportName);
 	}
-	
+
 	@Override
-	public void createNewFlight(String flightSegmentId,
-			Date scheduledDepartureTime, Date scheduledArrivalTime,
-			int firstClassBaseCost, int economyClassBaseCost,
-			int numFirstClassSeats, int numEconomyClassSeats,
+	public void createNewFlight(String flightSegmentId, Date scheduledDepartureTime, Date scheduledArrivalTime,
+			int firstClassBaseCost, int economyClassBaseCost, int numFirstClassSeats, int numEconomyClassSeats,
 			String airplaneTypeId) {
 		String id = keyGenerator.generate().toString();
-		Document flightDoc = new Document("_id", id)
-        .append("firstClassBaseCost", firstClassBaseCost)
-        .append("economyClassBaseCost", economyClassBaseCost)
-        .append("numFirstClassSeats", numFirstClassSeats)
-        .append("numEconomyClassSeats", numEconomyClassSeats)
-        .append("airplaneTypeId", airplaneTypeId)
-        .append("flightSegmentId", flightSegmentId)
-        .append("scheduledDepartureTime", scheduledDepartureTime)
-        .append("scheduledArrivalTime", scheduledArrivalTime);
-		
+		Document flightDoc = new Document("_id", id).append("firstClassBaseCost", firstClassBaseCost)
+				.append("economyClassBaseCost", economyClassBaseCost).append("numFirstClassSeats", numFirstClassSeats)
+				.append("numEconomyClassSeats", numEconomyClassSeats).append("airplaneTypeId", airplaneTypeId)
+				.append("flightSegmentId", flightSegmentId).append("scheduledDepartureTime", scheduledDepartureTime)
+				.append("scheduledArrivalTime", scheduledArrivalTime);
+
 		flight.insertOne(flightDoc);
 	}
-	
-	@Override 
-	public void storeFlightSegment(String flightSeg){
+
+	@Override
+	public void storeFlightSegment(String flightSeg) {
 		try {
 			JsonObject flightSegJson = gson.fromJson(flightSeg, JsonObject.class);
-			storeFlightSegment (flightSegJson.get("_id").getAsString(), 
-					flightSegJson.get("originPort").getAsString(), 
-					flightSegJson.get("destPort").getAsString(), 
-					flightSegJson.get("miles").getAsInt());
+			storeFlightSegment(flightSegJson.get("_id").getAsString(), flightSegJson.get("originPort").getAsString(),
+					flightSegJson.get("destPort").getAsString(), flightSegJson.get("miles").getAsInt());
 		} catch (JsonSyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
-	@Override 
+	@Override
 	public void storeFlightSegment(String flightName, String origPort, String destPort, int miles) {
-		Document flightSegmentDoc = new Document("_id", flightName)
-        .append("originPort", origPort)
-        .append("destPort", destPort)
-        .append("miles", miles);
-		
+		Document flightSegmentDoc = new Document("_id", flightName).append("originPort", origPort)
+				.append("destPort", destPort).append("miles", miles);
+
 		flightSegment.insertOne(flightSegmentDoc);
 	}
 

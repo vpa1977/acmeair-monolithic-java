@@ -32,11 +32,10 @@ import com.acmeair.service.AuthService;
 import com.acmeair.service.CustomerService;
 import com.google.gson.JsonObject;
 
-
 @RestController
 @RequestMapping("/api")
 public class LoginREST {
-	
+
 	private static Logger logger = Logger.getLogger(LoginREST.class.getName());
 
 	@Autowired
@@ -46,7 +45,8 @@ public class LoginREST {
 	CustomerService customerService;
 
 	@RequestMapping(value = "login", method = RequestMethod.POST, consumes = "application/x-www-form-urlencoded", produces = "text/plain")
-	public ResponseEntity<String> login(@RequestParam("login") String login, @RequestParam("password") String password) {
+	public ResponseEntity<String> login(@RequestParam("login") String login,
+			@RequestParam("password") String password) {
 		try {
 
 			boolean validCustomer = customerService.validateCustomer(login, password);
@@ -56,32 +56,32 @@ public class LoginREST {
 			}
 
 			JsonObject sessionJson = authService.createSession(login);
-			return ResponseEntity.status(HttpStatus.OK).header("Set-Cookie", AcmeAirConstants.SESSIONID_COOKIE_NAME + "=" + sessionJson.get("_id").getAsString() + "; Path=/").body("logged in");
+			return ResponseEntity.status(HttpStatus.OK).header("Set-Cookie",
+					AcmeAirConstants.SESSIONID_COOKIE_NAME + "=" + sessionJson.get("_id").getAsString() + "; Path=/")
+					.body("logged in");
 
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
-      		return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 		}
 	}
 
 	@RequestMapping(value = "login/logout", method = RequestMethod.GET, produces = "text/plain")
-	public ResponseEntity<String> logout(@RequestParam("login") String login, @CookieValue("acmeair_sessionid") String sessionid) {
+	public ResponseEntity<String> logout(@RequestParam("login") String login,
+			@CookieValue("acmeair_sessionid") String sessionid) {
 		try {
 			if (sessionid == null) {
 				logger.info("sessionid is null");
 				return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 			}
-			if (sessionid.equals(""))
-			{
+			if (sessionid.equals("")) {
 				logger.info("sessionid is empty");
 			} else {
 				authService.invalidateSession(sessionid);
 			}
 
 			return ResponseEntity.status(HttpStatus.OK).body("logged out");
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}

@@ -15,9 +15,6 @@
 *******************************************************************************/
 package com.acmeair.loader;
 
-
-
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -29,7 +26,7 @@ public class SessionLoader {
 	@Autowired
 	private AuthService authService;
 
-	public void dropSessions() {				
+	public void dropSessions() {
 		authService.dropSessions();
 	}
 }

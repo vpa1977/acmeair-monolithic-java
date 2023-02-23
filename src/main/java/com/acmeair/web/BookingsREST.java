@@ -15,7 +15,6 @@
 *******************************************************************************/
 package com.acmeair.web;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,61 +32,55 @@ public class BookingsREST {
 
 	@Autowired
 	private BookingService bs;
-	
+
 	@RequestMapping(value = "/bookflights", method = RequestMethod.POST, produces = "text/plain", consumes = "application/x-www-form-urlencoded")
-	public /*BookingInfo*/ ResponseEntity<String> bookFlights(
-			@RequestParam("userid") String userid,
+	public /* BookingInfo */ ResponseEntity<String> bookFlights(@RequestParam("userid") String userid,
 			@RequestParam("toFlightId") String toFlightId,
-			@RequestParam(name = "toFlightSegId" , defaultValue = "") String toFlightSegId,
+			@RequestParam(name = "toFlightSegId", defaultValue = "") String toFlightSegId,
 			@RequestParam(name = "retFlightId", defaultValue = "") String retFlightId,
 			@RequestParam(name = "retFlightSegId", defaultValue = "") String retFlightSegId,
-			@RequestParam(name = "oneWayFlight", defaultValue =  "true") boolean oneWay) {
+			@RequestParam(name = "oneWayFlight", defaultValue = "true") boolean oneWay) {
 		try {
 			String bookingIdTo = bs.bookFlight(userid, toFlightSegId, toFlightId);
-			
+
 			String bookingInfo = "";
-			
+
 			String bookingIdReturn = null;
 			if (!oneWay) {
 				bookingIdReturn = bs.bookFlight(userid, retFlightSegId, retFlightId);
-				bookingInfo = "{\"oneWay\":false,\"returnBookingId\":\"" + bookingIdReturn + "\",\"departBookingId\":\"" + bookingIdTo + "\"}";
-			}else {
+				bookingInfo = "{\"oneWay\":false,\"returnBookingId\":\"" + bookingIdReturn + "\",\"departBookingId\":\""
+						+ bookingIdTo + "\"}";
+			} else {
 				bookingInfo = "{\"oneWay\":true,\"departBookingId\":\"" + bookingIdTo + "\"}";
 			}
 			return new ResponseEntity<>(bookingInfo, HttpStatus.OK);
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-		
+
 	@RequestMapping(value = "/byuser/{user}", method = RequestMethod.GET, produces = "text/plain")
 	public ResponseEntity<String> getBookingsByUser(@PathVariable("user") String user) {
 		try {
 			return new ResponseEntity<>(bs.getBookingsByUser(user).toString(), HttpStatus.OK);
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
-
 	@RequestMapping(value = "/cancelbooking", method = RequestMethod.POST, produces = "text/plain", consumes = "application/x-www-form-urlencoded")
-	public ResponseEntity<String> cancelBookingsByNumber(
-			@RequestParam("number") String number,
+	public ResponseEntity<String> cancelBookingsByNumber(@RequestParam("number") String number,
 			@RequestParam("userid") String userid) {
 		try {
 			bs.cancelBooking(userid, number);
 			return new ResponseEntity<>("booking " + number + " deleted.", HttpStatus.OK);
-					
-		}
-		catch (Exception e) {
+
+		} catch (Exception e) {
 			e.printStackTrace();
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
 
 }

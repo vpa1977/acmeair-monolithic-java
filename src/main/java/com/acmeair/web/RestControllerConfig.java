@@ -7,10 +7,10 @@ import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-public class RestControllerConfig  implements WebMvcConfigurer {
-	
+public class RestControllerConfig implements WebMvcConfigurer {
+
 	@Override
-    public void configurePathMatch(PathMatchConfigurer configurer) {
-        configurer.addPathPrefix("rest", HandlerTypePredicate.forAnnotation(RestController.class));
-    }
+	public void configurePathMatch(PathMatchConfigurer configurer) {
+		configurer.addPathPrefix("rest", HandlerTypePredicate.forAnnotation(RestController.class));
+	}
 }

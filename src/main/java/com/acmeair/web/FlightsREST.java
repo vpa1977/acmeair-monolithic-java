@@ -28,38 +28,35 @@ import com.acmeair.service.FlightService;
 @RestController
 @RequestMapping("/api/flights")
 public class FlightsREST {
-	
+
 	@Autowired
 	private FlightService flightService;
-	
-	// TODO:  Consider a pure GET implementation of this service, but maybe not much value due to infrequent similar searches
-	@RequestMapping(value = "/queryflights", method = RequestMethod.POST, produces = "text/plain", consumes = "application/x-www-form-urlencoded")
-	public String getTripFlights(
-			@RequestParam("fromAirport") String fromAirport,
-			@RequestParam("toAirport") String toAirport,
-			@RequestParam("fromDate") DateParam fromDate,
-			@RequestParam("returnDate") DateParam returnDate,
-			@RequestParam("oneWay") boolean oneWay
-			) {
-		
-		String options = "";
-		
-		List<String> toFlights = flightService.getFlightByAirportsAndDepartureDate(fromAirport, toAirport, fromDate.getDate());
-		
-		if (!oneWay) {
-			List<String> retFlights = flightService.getFlightByAirportsAndDepartureDate(toAirport, fromAirport, returnDate.getDate());
 
-			options = "{\"tripFlights\":" + 
-					"[{\"numPages\":1,\"flightsOptions\": " + toFlights + ",\"currentPage\":0,\"hasMoreOptions\":false,\"pageSize\":10}, " + 
-					"{\"numPages\":1,\"flightsOptions\": " + retFlights + ",\"currentPage\":0,\"hasMoreOptions\":false,\"pageSize\":10}], " + 
-					"\"tripLegs\":2}";
+	// TODO: Consider a pure GET implementation of this service, but maybe not much
+	// value due to infrequent similar searches
+	@RequestMapping(value = "/queryflights", method = RequestMethod.POST, produces = "text/plain", consumes = "application/x-www-form-urlencoded")
+	public String getTripFlights(@RequestParam("fromAirport") String fromAirport,
+			@RequestParam("toAirport") String toAirport, @RequestParam("fromDate") DateParam fromDate,
+			@RequestParam("returnDate") DateParam returnDate, @RequestParam("oneWay") boolean oneWay) {
+
+		String options = "";
+
+		List<String> toFlights = flightService.getFlightByAirportsAndDepartureDate(fromAirport, toAirport,
+				fromDate.getDate());
+
+		if (!oneWay) {
+			List<String> retFlights = flightService.getFlightByAirportsAndDepartureDate(toAirport, fromAirport,
+					returnDate.getDate());
+
+			options = "{\"tripFlights\":" + "[{\"numPages\":1,\"flightsOptions\": " + toFlights
+					+ ",\"currentPage\":0,\"hasMoreOptions\":false,\"pageSize\":10}, "
+					+ "{\"numPages\":1,\"flightsOptions\": " + retFlights
+					+ ",\"currentPage\":0,\"hasMoreOptions\":false,\"pageSize\":10}], " + "\"tripLegs\":2}";
+		} else {
+			options = "{\"tripFlights\":" + "[{\"numPages\":1,\"flightsOptions\": " + toFlights
+					+ ",\"currentPage\":0,\"hasMoreOptions\":false,\"pageSize\":10}], " + "\"tripLegs\":1}";
 		}
-		else {
-			options = "{\"tripFlights\":" + 
-					"[{\"numPages\":1,\"flightsOptions\": " + toFlights + ",\"currentPage\":0,\"hasMoreOptions\":false,\"pageSize\":10}], " + 
-					"\"tripLegs\":1}";
-		}
-		
+
 		return options;
 	}
 

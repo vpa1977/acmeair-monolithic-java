@@ -17,30 +17,30 @@ package com.acmeair.web.dto;
 
 import java.io.Serializable;
 
-public class CustomerInfo implements Serializable{
+public class CustomerInfo implements Serializable {
 
-	
 	private static final long serialVersionUID = 1L;
 	private String _id;
-	
+
 	private String password;
-	
+
 	private String status;
-	
+
 	private int total_miles;
-	
+
 	private int miles_ytd;
 
 	private AddressInfo address;
-	
+
 	private String phoneNumber;
-	
+
 	private String phoneNumberType;
-	
+
 	public CustomerInfo() {
 	}
-	
-	public CustomerInfo(String username, String password, String status, int total_miles, int miles_ytd, AddressInfo address, String phoneNumber, String phoneNumberType) {
+
+	public CustomerInfo(String username, String password, String status, int total_miles, int miles_ytd,
+			AddressInfo address, String phoneNumber, String phoneNumberType) {
 		this._id = username;
 		this.password = password;
 		this.status = status;
@@ -50,47 +50,47 @@ public class CustomerInfo implements Serializable{
 		this.phoneNumber = phoneNumber;
 		this.phoneNumberType = phoneNumberType;
 	}
-	
+
 	public String get_id() {
 		return _id;
 	}
-	
+
 	public void set_id(String username) {
 		this._id = username;
 	}
-	
+
 	public String getPassword() {
 		return password;
 	}
-	
+
 	public void setPassword(String password) {
 		this.password = password;
 	}
-	
+
 	public String getStatus() {
 		return status;
 	}
-	
+
 	public void setStatus(String status) {
 		this.status = status;
 	}
-	
+
 	public int getTotal_miles() {
 		return total_miles;
 	}
-	
+
 	public void setTotal_miles(int total_miles) {
 		this.total_miles = total_miles;
 	}
-	
+
 	public int getMiles_ytd() {
 		return miles_ytd;
 	}
-	
+
 	public void setMiles_ytd(int miles_ytd) {
 		this.miles_ytd = miles_ytd;
 	}
-	
+
 	public String getPhoneNumber() {
 		return phoneNumber;
 	}
@@ -117,10 +117,9 @@ public class CustomerInfo implements Serializable{
 
 	@Override
 	public String toString() {
-		return "Customer [id=" + _id + ", password=" + password + ", status="
-				+ status + ", total_miles=" + total_miles + ", miles_ytd="
-				+ miles_ytd + ", address=" + address + ", phoneNumber="
-				+ phoneNumber + ", phoneNumberType=" + phoneNumberType + "]";
+		return "Customer [id=" + _id + ", password=" + password + ", status=" + status + ", total_miles=" + total_miles
+				+ ", miles_ytd=" + miles_ytd + ", address=" + address + ", phoneNumber=" + phoneNumber
+				+ ", phoneNumberType=" + phoneNumberType + "]";
 	}
 
 	@Override

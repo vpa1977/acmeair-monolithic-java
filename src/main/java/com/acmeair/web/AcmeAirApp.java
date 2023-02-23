@@ -11,8 +11,8 @@ import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
 @SpringBootConfiguration
-@ComponentScan(basePackages = {"com.acmeair"})
-@EnableAutoConfiguration(exclude={MongoAutoConfiguration.class})
+@ComponentScan(basePackages = { "com.acmeair" })
+@EnableAutoConfiguration(exclude = { MongoAutoConfiguration.class })
 public class AcmeAirApp extends SpringBootServletInitializer {
 	public static void main(String[] args) {
 		SpringApplication.run(AcmeAirApp.class, args);

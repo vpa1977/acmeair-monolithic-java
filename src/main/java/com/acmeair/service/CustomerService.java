@@ -25,44 +25,42 @@ import com.google.gson.JsonSyntaxException;
 
 public abstract class CustomerService {
 	protected static final int DAYS_TO_ALLOW_SESSION = 1;
-	
+
 	@Autowired
 	protected KeyGenerator keyGenerator;
-	
+
 	private Gson gson = new GsonBuilder().create();
-	
-	public abstract void createCustomer(
-			String username, String password, String status, int total_miles,
-			int miles_ytd, String phoneNumber, String phoneNumberType, String addressJson);
-	
-	public abstract String createAddress (String streetAddress1, String streetAddress2,
-			String city, String stateProvince, String country, String postalCode);
-	
-	public abstract void updateCustomer(String username,  CustomerInfo customerJson);
-		
-	
+
+	public abstract void createCustomer(String username, String password, String status, int total_miles, int miles_ytd,
+			String phoneNumber, String phoneNumberType, String addressJson);
+
+	public abstract String createAddress(String streetAddress1, String streetAddress2, String city,
+			String stateProvince, String country, String postalCode);
+
+	public abstract void updateCustomer(String username, CustomerInfo customerJson);
+
 	protected abstract String getCustomer(String username);
-	
+
 	public abstract String getCustomerByUsername(String username);
-	
+
 	public boolean validateCustomer(String username, String password) {
 		boolean validatedCustomer = false;
 		String customerToValidate = getCustomer(username);
 		if (customerToValidate != null) {
-			try{
+			try {
 				JsonObject customerJson = gson.fromJson(customerToValidate, JsonObject.class);
 				validatedCustomer = password.equals(customerJson.get("password").getAsString());
-			}catch (JsonSyntaxException e) {
+			} catch (JsonSyntaxException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 		return validatedCustomer;
 	}
-	
+
 	public String getCustomerByUsernameAndPassword(String username, String password) {
 		String c = getCustomer(username);
-		try{
+		try {
 			JsonObject customerJson = gson.fromJson(c, JsonObject.class);
 			if (!customerJson.get("password").getAsString().equals(password)) {
 				return null;
@@ -75,9 +73,9 @@ public abstract class CustomerService {
 		// Should we also set the password to null?
 		return c;
 	}
-			
+
 	public abstract Long count();
 
 	public abstract void dropCustomers();
-		
+
 }

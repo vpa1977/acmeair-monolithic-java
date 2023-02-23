@@ -156,9 +156,7 @@ public class EndpointTests extends BaseTest {
 	@Test
 	public void test06_updateCustomer() throws InterruptedException {
 		String url = BASE_URL_WITH_CONTEXT_ROOT + CUSTOMER_ENDPOINT + "/" + USERNAME;
-		RequestEntity<String> re = RequestEntity
-				.post(url)
-				.contentType(MediaType.APPLICATION_JSON)
+		RequestEntity<String> re = RequestEntity.post(url).contentType(MediaType.APPLICATION_JSON)
 				.body(CUSTOMER_UPDATE);
 
 		ResponseEntity<String> response = restTemplate.exchange(re, String.class);
@@ -168,7 +166,6 @@ public class EndpointTests extends BaseTest {
 		String result = response.getBody();
 		assertThat(result, containsString(CUSTOMER_RESPONSE_2));
 	}
-
 
 	@Test
 	public void test06_bookFlight() {
@@ -186,22 +183,19 @@ public class EndpointTests extends BaseTest {
 		assertEquals(HttpStatus.OK, response.getStatusCode(), "Incorrect response code from " + url);
 
 		Gson gson = new GsonBuilder().create();
-		
-		
+
 		JsonObject flightData = gson.fromJson(response.getBody(), JsonObject.class);
-		
-		JsonArray arr = flightData.get("tripFlights").getAsJsonArray()
-				.get(0).getAsJsonObject()
-				.get("flightsOptions").getAsJsonArray();
+
+		JsonArray arr = flightData.get("tripFlights").getAsJsonArray().get(0).getAsJsonObject().get("flightsOptions")
+				.getAsJsonArray();
 		JsonObject option = arr.get(0).getAsJsonObject();
-		
 
 		url = BASE_URL_WITH_CONTEXT_ROOT + BOOKFLIGHT_ENDPOINT;
 
 		form = new LinkedMultiValueMap<String, String>();
 		form.add("userid", USERNAME);
 		form.add("toFlightSegId", option.get("flightSegmentId").getAsString());
-		form.add("toFlightId",  option.get("_id").getAsString());
+		form.add("toFlightId", option.get("_id").getAsString());
 		form.add("oneWayFlight", "true");
 
 		response = postForm(url, form);

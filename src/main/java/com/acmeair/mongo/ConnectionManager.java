@@ -64,7 +64,7 @@ public class ConnectionManager implements MongoConstants {
 		String mongoUser = System.getenv("MONGO_USER");
 
 		String mongoPassword = System.getenv("MONGO_PASSWORD");
-		ConnectionString mongoURI = new ConnectionString("mongodb://"+ hostname + ":"+ port);
+		ConnectionString mongoURI = new ConnectionString("mongodb://" + hostname + ":" + port);
 		try {
 
 			// If MONGO_MANUAL is set to true, it will set up the DB connection
@@ -73,13 +73,11 @@ public class ConnectionManager implements MongoConstants {
 				if (mongoUser != null) {
 					MongoCredential credential = MongoCredential.createCredential(mongoUser, dbname,
 							mongoPassword.toCharArray());
-					MongoClientSettings settings = MongoClientSettings.builder()
-							.applyConnectionString(mongoURI)
-							.credential(credential)
-							.build();
+					MongoClientSettings settings = MongoClientSettings.builder().applyConnectionString(mongoURI)
+							.credential(credential).build();
 					mongoClient = MongoClients.create(settings);
-				}else {
-					mongoClient =MongoClients.create(mongoURI);
+				} else {
+					mongoClient = MongoClients.create(mongoURI);
 				}
 			} else {
 				// Check if VCAP_SERVICES exist, and if it does, look up the url
@@ -87,9 +85,9 @@ public class ConnectionManager implements MongoConstants {
 				String vcapJSONString = System.getenv("VCAP_SERVICES");
 				if (vcapJSONString != null) {
 					logger.info("Reading VCAP_SERVICES");
-					Gson gson = new GsonBuilder().create(); 
-					JsonObject vcapServices  = gson.fromJson(vcapJSONString, JsonObject.class);
-					
+					Gson gson = new GsonBuilder().create();
+					JsonObject vcapServices = gson.fromJson(vcapJSONString, JsonObject.class);
+
 					JsonArray mongoServiceArray = null;
 					for (String key : vcapServices.keySet()) {
 						if (key.startsWith("user-provided")) {
@@ -106,15 +104,14 @@ public class ConnectionManager implements MongoConstants {
 					mongoClient = MongoClients.create(mongoURI);
 					dbname = mongoURI.getDatabase();
 
-				}else {
+				} else {
 					mongoClient = MongoClients.create(mongoURI);
 				}
 			}
 			logger.fine("#### Mongo DB Database Name " + dbname + " ####");
 			db = mongoClient.getDatabase(dbname);
 
-			for (String host : mongoURI.getHosts())
-			{
+			for (String host : mongoURI.getHosts()) {
 				logger.info("#### Mongo DB Server " + host + " ####");
 			}
 			logger.info("#### Mongo DB is created with DB name " + dbname + " ####");

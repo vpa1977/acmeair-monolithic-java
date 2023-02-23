@@ -19,11 +19,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
-
 @RestController
 @RequestMapping("/info/config")
 public class AcmeAirConfiguration {
-    
+
 	private static Logger logger = Logger.getLogger(AcmeAirConfiguration.class.getName());
 
 	@Autowired
@@ -37,119 +36,106 @@ public class AcmeAirConfiguration {
 
 	@Autowired
 	private FlightService flightService;
-	
 
-	
-    public AcmeAirConfiguration() {
-        super();
-    }	
-		
-	
+	public AcmeAirConfiguration() {
+		super();
+	}
+
 	@RequestMapping(value = "/activeDataService", method = RequestMethod.GET, produces = "text/html")
 	public ResponseEntity<String> getActiveDataServiceInfo() {
-		try {		
+		try {
 			logger.fine("Get active Data Service info");
 			return new ResponseEntity<>(bs.getServiceType(), HttpStatus.OK);
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			return new ResponseEntity<>("Unknown", HttpStatus.OK);
 		}
 	}
-	
-	
+
 	private static final JsonObject makeDescriptionElement(String name, String description) {
 		JsonObject js = new JsonObject();
 		js.add("name", new JsonPrimitive(name));
 		js.add("description", new JsonPrimitive(description));
 		return js;
 	}
-	
+
 	/**
-    *  Get runtime info.
-    */
-    @RequestMapping(value = "/runtime", method = RequestMethod.GET, produces = "application/json")
-    public String getRuntimeInfo() {
-      Gson gson = new GsonBuilder().create();
-      JsonArray array = new JsonArray();
-      array.add(makeDescriptionElement("Runtime", "Java"));
-      array.add(makeDescriptionElement("Version", System.getProperty("java.version")));
-      array.add(makeDescriptionElement("Vendor", System.getProperty("java.vendor")));
-      return gson.toJson(array);
-    }
-	
+	 * Get runtime info.
+	 */
+	@RequestMapping(value = "/runtime", method = RequestMethod.GET, produces = "application/json")
+	public String getRuntimeInfo() {
+		Gson gson = new GsonBuilder().create();
+		JsonArray array = new JsonArray();
+		array.add(makeDescriptionElement("Runtime", "Java"));
+		array.add(makeDescriptionElement("Version", System.getProperty("java.version")));
+		array.add(makeDescriptionElement("Vendor", System.getProperty("java.vendor")));
+		return gson.toJson(array);
+	}
+
 	@RequestMapping(value = "/countBookings", method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<Long> countBookings() {
 		try {
-			Long count = bs.count();			
+			Long count = bs.count();
 			return new ResponseEntity<>(count, HttpStatus.OK);
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
-			return new ResponseEntity<>((long)-1, HttpStatus.OK);
+			return new ResponseEntity<>((long) -1, HttpStatus.OK);
 		}
 	}
-	
+
 	@RequestMapping(value = "/countCustomers", method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<Long> countCustomers() {
 		try {
 			Long customerCount = customerService.count();
 			return new ResponseEntity<>(customerCount, HttpStatus.OK);
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
-			return new ResponseEntity<>((long)-1, HttpStatus.OK);
+			return new ResponseEntity<>((long) -1, HttpStatus.OK);
 		}
 	}
-	
-	
+
 	@RequestMapping(value = "/countSessions", method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<Long> countSessions() {
 		try {
 			Long customerCount = authService.countSessions();
 			return new ResponseEntity<>(customerCount, HttpStatus.OK);
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
-			return new ResponseEntity<>((long)-1, HttpStatus.OK);
+			return new ResponseEntity<>((long) -1, HttpStatus.OK);
 		}
 	}
-	
-	
+
 	@RequestMapping(value = "/countFlights", method = RequestMethod.GET, produces = "application/json")
-	public ResponseEntity<Long>  countFlights() {
+	public ResponseEntity<Long> countFlights() {
 		try {
-			Long count = flightService.countFlights();			
+			Long count = flightService.countFlights();
 			return new ResponseEntity<>(count, HttpStatus.OK);
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
-			return new ResponseEntity<>((long)-1, HttpStatus.OK);
+			return new ResponseEntity<>((long) -1, HttpStatus.OK);
 		}
 	}
-	
+
 	@RequestMapping(value = "/countFlightSegments", method = RequestMethod.GET, produces = "application/json")
-	public ResponseEntity<Long>  countFlightSegments() {
+	public ResponseEntity<Long> countFlightSegments() {
 		try {
-			Long count = flightService.countFlightSegments();			
+			Long count = flightService.countFlightSegments();
 			return new ResponseEntity<>(count, HttpStatus.OK);
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
-			return new ResponseEntity<>((long)-1, HttpStatus.OK);
+			return new ResponseEntity<>((long) -1, HttpStatus.OK);
 		}
 	}
-	
+
 	@RequestMapping(value = "/countAirports", method = RequestMethod.GET, produces = "application/json")
-	public ResponseEntity<Long>  countAirports() {
-		try {			
-			Long count = flightService.countAirports();	
+	public ResponseEntity<Long> countAirports() {
+		try {
+			Long count = flightService.countAirports();
 			return new ResponseEntity<>(count, HttpStatus.OK);
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
-			return new ResponseEntity<>((long)-1, HttpStatus.OK);
+			return new ResponseEntity<>((long) -1, HttpStatus.OK);
 		}
 	}
-	
+
 }

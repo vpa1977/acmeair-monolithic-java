@@ -16,8 +16,6 @@ import com.mongodb.client.MongoDatabase;
 
 import com.acmeair.mongo.ConnectionManager;
 
-
-
 @Component
 public class AuthServiceImpl extends AuthService implements MongoConstants {
 
@@ -37,22 +35,20 @@ public class AuthServiceImpl extends AuthService implements MongoConstants {
 	}
 
 	@Override
-	protected String getSession(String sessionid){
+	protected String getSession(String sessionid) {
 		return customerSession.find(eq("_id", sessionid)).first().toJson();
 	}
 
 	@Override
-	protected void removeSession(String sessionJson){
+	protected void removeSession(String sessionJson) {
 		new Document();
 		customerSession.deleteMany(Document.parse(sessionJson));
 	}
 
 	@Override
-	protected  String createSession(String sessionId, String customerId, Date creation, Date expiration) {
-		Document sessionDoc = new Document("_id", sessionId)
-        .append("customerid", customerId)
-        .append("lastAccessedTime", creation)
-        .append("timeoutTime", expiration.getTime());
+	protected String createSession(String sessionId, String customerId, Date creation, Date expiration) {
+		Document sessionDoc = new Document("_id", sessionId).append("customerid", customerId)
+				.append("lastAccessedTime", creation).append("timeoutTime", expiration.getTime());
 
 		customerSession.insertOne(sessionDoc);
 

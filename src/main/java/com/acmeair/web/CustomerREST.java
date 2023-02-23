@@ -42,57 +42,58 @@ import com.acmeair.web.dto.CustomerInfo;
 @RestController
 @RequestMapping("/api/customer")
 public class CustomerREST {
-	
+
 	@Autowired
 	CustomerService customerService;
-	
-	@Autowired 
+
+	@Autowired
 	private HttpServletRequest request;
 
-	private boolean validate(String customerid)	{
+	private boolean validate(String customerid) {
 		String loginUser = (String) request.getAttribute(RESTCookieSessionFilter.LOGIN_USER);
-		if(logger.isLoggable(Level.FINE)){
+		if (logger.isLoggable(Level.FINE)) {
 			logger.fine("validate : loginUser " + loginUser + " customerid " + customerid);
 		}
 		return customerid.equals(loginUser);
 	}
-	
-	protected Logger logger =  Logger.getLogger(FlightService.class.getName());
+
+	protected Logger logger = Logger.getLogger(FlightService.class.getName());
 
 	@RequestMapping(value = "/byid/{custid}", method = RequestMethod.GET, produces = "text/plain")
-	public ResponseEntity<String> getCustomer(@CookieValue(AcmeAirConstants.SESSIONID_COOKIE_NAME) String sessionid, @PathVariable("custid") String customerid) {
-		if(logger.isLoggable(Level.FINE)){
+	public ResponseEntity<String> getCustomer(@CookieValue(AcmeAirConstants.SESSIONID_COOKIE_NAME) String sessionid,
+			@PathVariable("custid") String customerid) {
+		if (logger.isLoggable(Level.FINE)) {
 			logger.fine("getCustomer : session ID " + sessionid + " userid " + customerid);
 		}
 		try {
-			// make sure the user isn't trying to update a customer other than the one currently logged in
+			// make sure the user isn't trying to update a customer other than the one
+			// currently logged in
 			if (!validate(customerid)) {
 				return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 			}
 			return new ResponseEntity<>(customerService.getCustomerByUsername(customerid), HttpStatus.OK);
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
 	}
 
 	@RequestMapping(value = "/byid/{custid}", method = RequestMethod.POST, consumes = "application/json", produces = "text/plain")
-	public /* Customer */ ResponseEntity<String> putCustomer(@CookieValue(AcmeAirConstants.SESSIONID_COOKIE_NAME) String sessionid, @RequestBody CustomerInfo customer) {
+	public /* Customer */ ResponseEntity<String> putCustomer(
+			@CookieValue(AcmeAirConstants.SESSIONID_COOKIE_NAME) String sessionid, @RequestBody CustomerInfo customer) {
 
-		if (customer == null)
-		{
-			logger.severe("Missing customerInfo for session "+sessionid);
+		if (customer == null) {
+			logger.severe("Missing customerInfo for session " + sessionid);
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		String username = customer.get_id();
-		
+
 		if (!validate(username)) {
 			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 		}
-		
+
 		String customerFromDB = customerService.getCustomerByUsernameAndPassword(username, customer.getPassword());
-		if(logger.isLoggable(Level.FINE)){
+		if (logger.isLoggable(Level.FINE)) {
 			logger.fine("putCustomer : " + customerFromDB);
 		}
 
@@ -100,14 +101,12 @@ public class CustomerREST {
 			// either the customer doesn't exist or the password is wrong
 			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 		}
-		
+
 		customerService.updateCustomer(username, customer);
-		
-		//Retrieve the latest results
+
+		// Retrieve the latest results
 		customerFromDB = customerService.getCustomerByUsernameAndPassword(username, customer.getPassword());
 		return new ResponseEntity<>(customerFromDB, HttpStatus.OK);
 	}
-	
 
-	
 }
