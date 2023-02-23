@@ -22,14 +22,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
-import com.acmeair.AirportCodeMapping;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
+import com.acmeair.AirportCodeMapping;
+
 
 public abstract class FlightService {
 	protected FlightService(){
@@ -153,7 +151,7 @@ public abstract class FlightService {
 					logger.finest("Returning "+ flights);
 				return flights;
 			}
-		} catch (ParseException e) {
+		} catch (JsonSyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;

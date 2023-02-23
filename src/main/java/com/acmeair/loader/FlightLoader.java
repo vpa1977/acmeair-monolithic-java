@@ -24,9 +24,9 @@ import java.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.acmeair.AirportCodeMapping;
 import com.acmeair.service.FlightService;
 
-import com.acmeair.AirportCodeMapping;
 
 
 @Component
