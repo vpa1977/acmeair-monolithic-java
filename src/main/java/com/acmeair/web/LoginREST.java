@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.acmeair.service.AuthService;
 import com.acmeair.service.CustomerService;
+import com.google.gson.JsonObject;
 
 
 @RestController
@@ -52,8 +53,8 @@ public class LoginREST {
 				return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 			}	
 			
-			JSONObject sessionJson = authService.createSession(login);
-			return ResponseEntity.status(HttpStatus.OK).header("Set-Cookie", SESSIONID_COOKIE_NAME + "=" + sessionJson.get("_id") + "; Path=/").body("logged in");
+			JsonObject sessionJson = authService.createSession(login);
+			return ResponseEntity.status(HttpStatus.OK).header("Set-Cookie", SESSIONID_COOKIE_NAME + "=" + sessionJson.get("_id").getAsString() + "; Path=/").body("logged in");
 	
 		}
 		catch (Exception e) {

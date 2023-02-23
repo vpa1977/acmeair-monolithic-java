@@ -25,9 +25,6 @@ import java.util.logging.Level;
 import javax.annotation.PostConstruct;
 
 import org.bson.Document;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -35,6 +32,10 @@ import com.acmeair.AirportCodeMapping;
 import com.acmeair.mongo.MongoConstants;
 import com.acmeair.service.FlightService;
 import com.acmeair.service.KeyGenerator;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
@@ -51,6 +52,7 @@ public class FlightServiceImpl extends FlightService implements  MongoConstants 
 	private MongoCollection<Document> flight;
 	private MongoCollection<Document> flightSegment;
 	private MongoCollection<Document> airportCodeMapping;
+	private Gson gson = new GsonBuilder().create();
 	
 	@Autowired
 	KeyGenerator keyGenerator;
@@ -99,7 +101,7 @@ public class FlightServiceImpl extends FlightService implements  MongoConstants 
 	@Override
 	protected  List<String> getFlightBySegment(String segment, Date deptDate){
 		try {
-			JSONObject segmentJson = (JSONObject) new JSONParser().parse(segment);
+			com.google.gson.JsonObject segmentJson = gson.fromJson(segment, com.google.gson.JsonObject.class);
 			MongoCursor<Document> cursor;
 
 			if(deptDate != null) {
@@ -137,7 +139,7 @@ public class FlightServiceImpl extends FlightService implements  MongoConstants 
 				cursor.close();
 			}
 			return flights;
-		} catch (ParseException e) {
+		} catch (JsonSyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;
@@ -180,12 +182,12 @@ public class FlightServiceImpl extends FlightService implements  MongoConstants 
 	@Override 
 	public void storeFlightSegment(String flightSeg){
 		try {
-			JSONObject flightSegJson = (JSONObject) new JSONParser().parse(flightSeg);
-			storeFlightSegment ((String)flightSegJson.get("_id"), 
-					(String)flightSegJson.get("originPort"), 
-					(String)flightSegJson.get("destPort"), 
-					(int)flightSegJson.get("miles"));
-		} catch (ParseException e) {
+			JsonObject flightSegJson = gson.fromJson(flightSeg, JsonObject.class);
+			storeFlightSegment (flightSegJson.get("_id").getAsString(), 
+					flightSegJson.get("originPort").getAsString(), 
+					flightSegJson.get("destPort").getAsString(), 
+					flightSegJson.get("miles").getAsInt());
+		} catch (JsonSyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

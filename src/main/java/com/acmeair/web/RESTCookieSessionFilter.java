@@ -31,6 +31,7 @@ import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.acmeair.service.AuthService;
+import com.google.gson.JsonObject;
 
 public class RESTCookieSessionFilter implements Filter {
 	
@@ -91,9 +92,9 @@ public class RESTCookieSessionFilter implements Filter {
 				return;
 			}
 			
-			JSONObject jsonObject = authService.validateSession(sessionId);
+			JsonObject jsonObject = authService.validateSession(sessionId);
 			if (jsonObject != null) {
-				String loginUser=(String) jsonObject.get("customerid");				
+				String loginUser=jsonObject.get("customerid").getAsString();				
 				request.setAttribute(LOGIN_USER, loginUser);
 				chain.doFilter(req, resp);
 				return;
