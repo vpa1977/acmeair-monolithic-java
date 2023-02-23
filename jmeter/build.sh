@@ -18,7 +18,7 @@ pushd acmeair-driver
 
 cp acmeair-jmeter/build/libs/acmeair-jmeter-*-SNAPSHOT.jar \
     ../${PROJECT}/lib/ext/
-
+curl -o ../${PROJECT}/lib/ext/son-simple-1.1.1.jar https://repo1.maven.org/maven2/com/googlecode/json-simple/json-simple/1.1.1/json-simple-1.1.1.jar
 popd
 
 # update jmeter configuration
