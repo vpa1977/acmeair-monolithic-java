@@ -71,6 +71,16 @@ public class RESTCookieSessionFilter implements Filter {
 			chain.doFilter(req, resp);
 			return;
 		}
+		
+		if (!path.startsWith("/rest")) {
+			chain.doFilter(req, resp);
+			return;
+		}
+		
+		if (path.startsWith("/rest/info")) {
+			chain.doFilter(req, resp);
+			return;
+		}
 
 		Cookie cookies[] = request.getCookies();
 		Cookie sessionCookie = null;
