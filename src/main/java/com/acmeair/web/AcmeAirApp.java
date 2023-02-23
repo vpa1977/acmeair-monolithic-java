@@ -1,15 +1,16 @@
 package com.acmeair.web;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 
-import javax.ws.rs.core.Application;
-import javax.ws.rs.ApplicationPath;
+@SpringBootApplication
+@SpringBootConfiguration
+@ComponentScan(basePackages = {"com.acmeair"})
+public class AcmeAirApp {
+   	public static void main(String[] args) {
+		SpringApplication.run(AcmeAirApp.class, args);
+	}
 
-@ApplicationPath("/rest/api")
-public class AcmeAirApp extends Application {
-    public Set<Class<?>> getClasses() {
-        return new HashSet<Class<?>>(Arrays.asList(BookingsREST.class, CustomerREST.class, FlightsREST.class, LoginREST.class));
-    }
 }

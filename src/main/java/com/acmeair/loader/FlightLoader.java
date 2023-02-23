@@ -20,21 +20,22 @@ import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.util.*;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
-import com.acmeair.service.FlightService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.acmeair.AirportCodeMapping;
+import com.acmeair.service.FlightService;
 
 
-@ApplicationScoped
+
+@Component
 public class FlightLoader {
 	
 	private static final int MAX_FLIGHTS_PER_SEGMENT = 5;
 	
 
-	@Inject
+	@Autowired
 	private FlightService flightService;
 
 	public void dropFlights() {				

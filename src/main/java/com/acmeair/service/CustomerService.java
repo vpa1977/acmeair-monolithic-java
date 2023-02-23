@@ -15,19 +15,21 @@
 *******************************************************************************/
 package com.acmeair.service;
 
-import javax.inject.Inject;
-
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.acmeair.web.dto.CustomerInfo;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 
 public abstract class CustomerService {
 	protected static final int DAYS_TO_ALLOW_SESSION = 1;
 	
-	@Inject
+	@Autowired
 	protected KeyGenerator keyGenerator;
+	
+	private Gson gson = new GsonBuilder().create();
 	
 	public abstract void createCustomer(
 			String username, String password, String status, int total_miles,
@@ -48,9 +50,9 @@ public abstract class CustomerService {
 		String customerToValidate = getCustomer(username);
 		if (customerToValidate != null) {
 			try{
-				JSONObject customerJson = (JSONObject) new JSONParser().parse(customerToValidate);
-				validatedCustomer = password.equals((String)customerJson.get("password"));
-			}catch (ParseException e) {
+				JsonObject customerJson = gson.fromJson(customerToValidate, JsonObject.class);
+				validatedCustomer = password.equals(customerJson.get("password").getAsString());
+			}catch (JsonSyntaxException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -61,11 +63,11 @@ public abstract class CustomerService {
 	public String getCustomerByUsernameAndPassword(String username, String password) {
 		String c = getCustomer(username);
 		try{
-			JSONObject customerJson = (JSONObject) new JSONParser().parse(c);
-			if (!customerJson.get("password").equals(password)) {
+			JsonObject customerJson = gson.fromJson(c, JsonObject.class);
+			if (!customerJson.get("password").getAsString().equals(password)) {
 				return null;
 			}
-		} catch (ParseException e) {
+		} catch (JsonSyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;

@@ -2,37 +2,42 @@ package com.acmeair.config;
 
 import java.util.logging.Logger;
 
-import javax.inject.Inject;
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonBuilderFactory;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Response;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.acmeair.service.AuthService;
 import com.acmeair.service.BookingService;
 import com.acmeair.service.CustomerService;
 import com.acmeair.service.FlightService;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 
-@Path("/config")
+@RestController
+@RequestMapping("/info/config")
 public class AcmeAirConfiguration {
     
 	private static Logger logger = Logger.getLogger(AcmeAirConfiguration.class.getName());
 
-	@Inject
+	@Autowired
 	private BookingService bs;
 
-	@Inject
+	@Autowired
 	private CustomerService customerService;
 
-	@Inject
+	@Autowired
 	private AuthService authService;
 
-	@Inject
+	@Autowired
 	private FlightService flightService;
+	
 
 	
     public AcmeAirConfiguration() {
@@ -40,130 +45,110 @@ public class AcmeAirConfiguration {
     }	
 		
 	
-	@GET
-	@Path("/activeDataService")
-	@Produces("application/json")
-	public Response getActiveDataServiceInfo() {
+	@RequestMapping(value = "/activeDataService", method = RequestMethod.GET, produces = "text/html")
+	public ResponseEntity<String> getActiveDataServiceInfo() {
 		try {		
 			logger.fine("Get active Data Service info");
-			return  Response.ok(bs.getServiceType()).build();
+			return new ResponseEntity<>(bs.getServiceType(), HttpStatus.OK);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			return Response.ok("Unknown").build();
+			return new ResponseEntity<>("Unknown", HttpStatus.OK);
 		}
+	}
+	
+	
+	private static final JsonObject makeDescriptionElement(String name, String description) {
+		JsonObject js = new JsonObject();
+		js.add("name", new JsonPrimitive(name));
+		js.add("description", new JsonPrimitive(description));
+		return js;
 	}
 	
 	/**
     *  Get runtime info.
     */
-    @GET
-    @Path("/runtime")
-    @Produces("application/json")
+    @RequestMapping(value = "/runtime", method = RequestMethod.GET, produces = "application/json")
     public String getRuntimeInfo() {
-      JsonBuilderFactory factory = Json.createBuilderFactory(null);
-      JsonArray value = factory.createArrayBuilder()
-        .add(factory.createObjectBuilder()
-            .add("name", "Runtime")
-            .add("description", "Java"))
-        .add(factory.createObjectBuilder()
-            .add("name", "Version")
-            .add("description", System.getProperty("java.version")))
-        .add(factory.createObjectBuilder()
-            .add("name", "Vendor")
-            .add("description", System.getProperty("java.vendor")))
-        .build();
-    
-      return value.toString();
+      Gson gson = new GsonBuilder().create();
+      JsonArray array = new JsonArray();
+      array.add(makeDescriptionElement("Runtime", "Java"));
+      array.add(makeDescriptionElement("Version", System.getProperty("java.version")));
+      array.add(makeDescriptionElement("Vendor", System.getProperty("java.vendor")));
+      return gson.toJson(array);
     }
-
 	
-	
-	@GET
-	@Path("/countBookings")
-	@Produces("application/json")
-	public Response countBookings() {
+	@RequestMapping(value = "/countBookings", method = RequestMethod.GET, produces = "application/json")
+	public ResponseEntity<Long> countBookings() {
 		try {
 			Long count = bs.count();			
-			return Response.ok(count).build();
+			return new ResponseEntity<>(count, HttpStatus.OK);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			return Response.ok(-1).build();
+			return new ResponseEntity<>((long)-1, HttpStatus.OK);
 		}
 	}
 	
-	@GET
-	@Path("/countCustomers")
-	@Produces("application/json")
-	public Response countCustomer() {
+	@RequestMapping(value = "/countCustomers", method = RequestMethod.GET, produces = "application/json")
+	public ResponseEntity<Long> countCustomers() {
 		try {
 			Long customerCount = customerService.count();
-			
-			return Response.ok(customerCount).build();
+			return new ResponseEntity<>(customerCount, HttpStatus.OK);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			return Response.ok(-1).build();
+			return new ResponseEntity<>((long)-1, HttpStatus.OK);
 		}
 	}
 	
 	
-	@GET
-	@Path("/countSessions")
-	@Produces("application/json")
-	public Response countCustomerSessions() {
+	@RequestMapping(value = "/countSessions", method = RequestMethod.GET, produces = "application/json")
+	public ResponseEntity<Long> countSessions() {
 		try {
 			Long customerCount = authService.countSessions();
-			
-			return Response.ok(customerCount).build();
+			return new ResponseEntity<>(customerCount, HttpStatus.OK);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			return Response.ok(-1).build();
+			return new ResponseEntity<>((long)-1, HttpStatus.OK);
 		}
 	}
 	
 	
-	@GET
-	@Path("/countFlights")
-	@Produces("application/json")
-	public Response countFlights() {
+	@RequestMapping(value = "/countFlights", method = RequestMethod.GET, produces = "application/json")
+	public ResponseEntity<Long>  countFlights() {
 		try {
 			Long count = flightService.countFlights();			
-			return Response.ok(count).build();
+			return new ResponseEntity<>(count, HttpStatus.OK);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			return Response.ok(-1).build();
+			return new ResponseEntity<>((long)-1, HttpStatus.OK);
 		}
 	}
 	
-	@GET
-	@Path("/countFlightSegments")
-	@Produces("application/json")
-	public Response countFlightSegments() {
+	@RequestMapping(value = "/countFlightSegments", method = RequestMethod.GET, produces = "application/json")
+	public ResponseEntity<Long>  countFlightSegments() {
 		try {
 			Long count = flightService.countFlightSegments();			
-			return Response.ok(count).build();
+			return new ResponseEntity<>(count, HttpStatus.OK);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			return Response.ok(-1).build();
+			return new ResponseEntity<>((long)-1, HttpStatus.OK);
 		}
 	}
 	
-	@GET
-	@Path("/countAirports")
-	@Produces("application/json")
-	public Response countAirports() {
+	@RequestMapping(value = "/countAirports", method = RequestMethod.GET, produces = "application/json")
+	public ResponseEntity<Long>  countAirports() {
 		try {			
 			Long count = flightService.countAirports();	
-			return Response.ok(count).build();
+			return new ResponseEntity<>(count, HttpStatus.OK);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			return Response.ok(-1).build();
+			return new ResponseEntity<>((long)-1, HttpStatus.OK);
 		}
 	}
 	

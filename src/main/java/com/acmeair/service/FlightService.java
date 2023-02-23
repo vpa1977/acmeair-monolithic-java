@@ -22,11 +22,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import com.acmeair.AirportCodeMapping;
+
 
 public abstract class FlightService {
 	protected FlightService(){
@@ -48,6 +49,7 @@ public abstract class FlightService {
 		}
 	}
 
+	private Gson gson = new GsonBuilder().create();
 	protected Logger logger =  Logger.getLogger(FlightService.class.getName());
 
 	protected static Boolean useFlightDataRelatedCaching = null;
@@ -110,11 +112,11 @@ public abstract class FlightService {
 			if (segment == ""){
 				return new ArrayList<String>();
 			}
-			JSONObject segmentJson = (JSONObject) new JSONParser().parse(segment);
+			JsonObject segmentJson = gson.fromJson(segment, JsonObject.class);
 			if(logger.isLoggable(Level.FINE)){
 				logger.fine("Segment in JSON "+ segmentJson);
 			}
-			String segId = (String)segmentJson.get("_id");
+			String segId = segmentJson.get("_id").getAsString();
 			if (segId == null) {
 				if(logger.isLoggable(Level.FINE)){
 					logger.fine("Segment is null");
@@ -149,7 +151,7 @@ public abstract class FlightService {
 					logger.finest("Returning "+ flights);
 				return flights;
 			}
-		} catch (ParseException e) {
+		} catch (JsonSyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;

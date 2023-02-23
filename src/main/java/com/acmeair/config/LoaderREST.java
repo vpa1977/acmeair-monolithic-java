@@ -1,44 +1,41 @@
 package com.acmeair.config;
 
-import javax.inject.Inject;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Response;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.acmeair.loader.Loader;
 
 
-@Path("/loader")
+@RestController
+@RequestMapping("/info/loader")
 public class LoaderREST {
 
 //	private static Logger logger = Logger.getLogger(LoaderREST.class.getName());
 
-	
+
 /*
  * Disabling to test out the new acmeair code frist
  */
 
-	@Inject
-	private Loader loader;	
-	
-	@GET
-	@Path("/query")
-	@Produces("text/plain")
-	public Response queryLoader() {			
+	@Autowired
+	private Loader loader;
+
+	@RequestMapping(value ="/query", method = RequestMethod.GET, produces = "text/plain")
+	public ResponseEntity<String> queryLoader() {
 		String response = loader.queryLoader();
-		return Response.ok(response).build();	
+		return ResponseEntity.ok(response);
 	}
-	
-	
-	@GET
-	@Path("/load")
-	@Produces("text/plain")
-	public Response loadDB(@DefaultValue("-1") @QueryParam("numCustomers") long numCustomers) {	
+
+
+	@RequestMapping(value ="/load", method = RequestMethod.GET, produces = "text/plain")
+	public ResponseEntity<String> loadDB(@RequestParam(name = "numCustomers", defaultValue = "-1") long numCustomers) {
 		String response = loader.loadDB(numCustomers);
-		return Response.ok(response).build();	
+		return ResponseEntity.ok(response);
 	}
 
 }

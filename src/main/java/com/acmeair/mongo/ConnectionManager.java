@@ -1,17 +1,16 @@
 package com.acmeair.mongo;
 
-import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoCredential;
-import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoClients;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
@@ -75,8 +74,8 @@ public class ConnectionManager implements MongoConstants {
 					MongoCredential credential = MongoCredential.createCredential(mongoUser, dbname,
 							mongoPassword.toCharArray());
 					MongoClientSettings settings = MongoClientSettings.builder()
-							.credential(credential)
 							.applyConnectionString(mongoURI)
+							.credential(credential)
 							.build();
 					mongoClient = MongoClients.create(settings);
 				}else {
@@ -88,19 +87,20 @@ public class ConnectionManager implements MongoConstants {
 				String vcapJSONString = System.getenv("VCAP_SERVICES");
 				if (vcapJSONString != null) {
 					logger.info("Reading VCAP_SERVICES");
-					Object jsonObject = JSONValue.parse(vcapJSONString);
-					JSONObject vcapServices = (JSONObject) jsonObject;
-					JSONArray mongoServiceArray = null;
-					for (Object key : vcapServices.keySet()) {
-						if (key.toString().startsWith("user-provided")) {
-							mongoServiceArray = (JSONArray) vcapServices.get(key);
-							logger.info("Service Type : MongoDB by Compost - " + key.toString());
+					Gson gson = new GsonBuilder().create(); 
+					JsonObject vcapServices  = gson.fromJson(vcapJSONString, JsonObject.class);
+					
+					JsonArray mongoServiceArray = null;
+					for (String key : vcapServices.keySet()) {
+						if (key.startsWith("user-provided")) {
+							mongoServiceArray = vcapServices.getAsJsonArray(key);
+							logger.info("Service Type : MongoDB by Compost - " + key);
 							break;
 						}
 					}
-					JSONObject mongoService = (JSONObject) mongoServiceArray.get(0);
-					JSONObject credentials = (JSONObject) mongoService.get("credentials");
-					String url = (String) credentials.get("url");
+					JsonObject mongoService = (JsonObject) mongoServiceArray.get(0);
+					JsonObject credentials = (JsonObject) mongoService.get("credentials");
+					String url = credentials.get("url").getAsString();
 					logger.fine("service url = " + url);
 					mongoURI = new ConnectionString(url);
 					mongoClient = MongoClients.create(mongoURI);

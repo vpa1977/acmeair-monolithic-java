@@ -15,67 +15,57 @@
 *******************************************************************************/
 package com.acmeair.web;
 
-import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.CookieParam;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.ws.rs.core.Response;
-
-import org.json.simple.JSONObject;
-
+import com.acmeair.AcmeAirConstants;
 import com.acmeair.service.AuthService;
 import com.acmeair.service.CustomerService;
+import com.google.gson.JsonObject;
 
 
-@Path("/login")
+@RestController
+@RequestMapping("/api")
 public class LoginREST {
-	
-	public static String SESSIONID_COOKIE_NAME = "acmeair_sessionid";
-			
-	@Inject
+
+	@Autowired
 	AuthService authService;
 
-	@Inject
+	@Autowired
 	CustomerService customerService;
-	
-	
-	@POST
-	@Consumes({"application/x-www-form-urlencoded"})
-	@Produces("text/plain")
-	public Response login(@FormParam("login") String login, @FormParam("password") String password) {
+
+	@RequestMapping(value = "login", method = RequestMethod.POST, consumes = "application/x-www-form-urlencoded", produces = "text/plain")
+	public ResponseEntity<String> login(@RequestParam("login") String login, @RequestParam("password") String password) {
 		try {
 
 			boolean validCustomer = customerService.validateCustomer(login, password);
-			
+
 			if (!validCustomer) {
-				return Response.status(Response.Status.FORBIDDEN).build();
-			}	
-			
-			JSONObject sessionJson = authService.createSession(login);
-	
-			return Response.ok("logged in").header("Set-Cookie", SESSIONID_COOKIE_NAME + "=" + sessionJson.get("_id") + "; Path=/").build();
-	
+				return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+			}
+
+			JsonObject sessionJson = authService.createSession(login);
+			return ResponseEntity.status(HttpStatus.OK).header("Set-Cookie", AcmeAirConstants.SESSIONID_COOKIE_NAME + "=" + sessionJson.get("_id").getAsString() + "; Path=/").body("logged in");
+
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-      		return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+      		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 	}
-	
-	@GET
-	@Path("/logout")
-	@Produces("text/plain")
-	public Response logout(@QueryParam("login") String login, @CookieParam("acmeair_sessionid") String sessionid) {
+
+	@RequestMapping(value = "login/logout", method = RequestMethod.GET, produces = "text/plain")
+	public ResponseEntity<String> logout(@RequestParam("login") String login, @CookieValue("acmeair_sessionid") String sessionid) {
 		try {
 			if (sessionid == null) {
 				System.out.println("sessionid is null");
-				return Response.status(Response.Status.FORBIDDEN).build();
+				return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 			}
 			if (sessionid.equals(""))
 			{
@@ -84,11 +74,11 @@ public class LoginREST {
 				authService.invalidateSession(sessionid);
 			}
 
-			return Response.ok("logged out").build();
+			return ResponseEntity.status(HttpStatus.OK).body("logged out");
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 	}
 }

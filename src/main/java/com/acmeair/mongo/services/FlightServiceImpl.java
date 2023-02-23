@@ -23,18 +23,19 @@ import java.util.List;
 import java.util.logging.Level;
 
 import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
 import org.bson.Document;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.acmeair.AirportCodeMapping;
 import com.acmeair.mongo.MongoConstants;
 import com.acmeair.service.FlightService;
 import com.acmeair.service.KeyGenerator;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
@@ -43,7 +44,7 @@ import com.mongodb.client.MongoDatabase;
 
 import com.acmeair.mongo.ConnectionManager;
 
-@ApplicationScoped
+@Component
 public class FlightServiceImpl extends FlightService implements  MongoConstants {
 
 	//private final static Logger logger = Logger.getLogger(FlightService.class.getName()); 
@@ -51,8 +52,9 @@ public class FlightServiceImpl extends FlightService implements  MongoConstants 
 	private MongoCollection<Document> flight;
 	private MongoCollection<Document> flightSegment;
 	private MongoCollection<Document> airportCodeMapping;
+	private Gson gson = new GsonBuilder().create();
 	
-	@Inject
+	@Autowired
 	KeyGenerator keyGenerator;
 	
 
@@ -99,16 +101,19 @@ public class FlightServiceImpl extends FlightService implements  MongoConstants 
 	@Override
 	protected  List<String> getFlightBySegment(String segment, Date deptDate){
 		try {
-			JSONObject segmentJson = (JSONObject) new JSONParser().parse(segment);
+			Document segmentJson = Document.parse(segment);
 			MongoCursor<Document> cursor;
 
 			if(deptDate != null) {
 				if(logger.isLoggable(Level.FINE)){
 					logger.fine("getFlghtBySegment Search String : " + new BasicDBObject("flightSegmentId", segmentJson.get("_id")).append("scheduledDepartureTime", deptDate).toJson());
 				}
-				cursor = flight.find(new BasicDBObject("flightSegmentId", segmentJson.get("_id")).append("scheduledDepartureTime", deptDate)).iterator();
+				cursor = flight.find(new BasicDBObject("flightSegmentId", 
+						segmentJson.get("_id"))
+						.append("scheduledDepartureTime", deptDate)).iterator();
 			} else {
-				cursor = flight.find(eq("flightSegmentId", segmentJson.get("_id"))).iterator();
+				cursor = flight.find(eq("flightSegmentId", 
+						segmentJson.get("_id"))).iterator();
 			}
 			
 			List<String> flights =  new ArrayList<String>();
@@ -130,14 +135,14 @@ public class FlightServiceImpl extends FlightService implements  MongoConstants 
 					if(logger.isLoggable(Level.FINE)){
 						logger.fine("getFlghtBySegment after : " + tempDoc.toJson());
 					}
-
+					
 					flights.add(tempDoc.append("flightSegment", segmentJson).toJson());
 				}
 			}finally{
 				cursor.close();
 			}
 			return flights;
-		} catch (ParseException e) {
+		} catch (JsonSyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;
@@ -180,12 +185,12 @@ public class FlightServiceImpl extends FlightService implements  MongoConstants 
 	@Override 
 	public void storeFlightSegment(String flightSeg){
 		try {
-			JSONObject flightSegJson = (JSONObject) new JSONParser().parse(flightSeg);
-			storeFlightSegment ((String)flightSegJson.get("_id"), 
-					(String)flightSegJson.get("originPort"), 
-					(String)flightSegJson.get("destPort"), 
-					(int)flightSegJson.get("miles"));
-		} catch (ParseException e) {
+			JsonObject flightSegJson = gson.fromJson(flightSeg, JsonObject.class);
+			storeFlightSegment (flightSegJson.get("_id").getAsString(), 
+					flightSegJson.get("originPort").getAsString(), 
+					flightSegJson.get("destPort").getAsString(), 
+					flightSegJson.get("miles").getAsInt());
+		} catch (JsonSyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

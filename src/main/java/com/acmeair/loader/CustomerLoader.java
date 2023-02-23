@@ -15,16 +15,15 @@
 *******************************************************************************/
 package com.acmeair.loader;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.acmeair.service.CustomerService;
 
-
-@ApplicationScoped
+@Component
 public class CustomerLoader {
-
-	@Inject
+	
+	@Autowired
 	CustomerService customerService;
 
 	public void dropCustomers() {		

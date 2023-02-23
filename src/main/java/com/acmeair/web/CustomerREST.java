@@ -18,30 +18,36 @@ package com.acmeair.web;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.CookieParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.acmeair.AcmeAirConstants;
 import com.acmeair.service.CustomerService;
 import com.acmeair.service.FlightService;
 import com.acmeair.web.dto.CustomerInfo;
 
-@Path("/customer")
+@RestController
+@RequestMapping("/api/customer")
 public class CustomerREST {
 	
-	@Inject
+	@Autowired
 	CustomerService customerService;
 	
-	@Context 
+	@Autowired 
 	private HttpServletRequest request;
-
 
 	private boolean validate(String customerid)	{
 		String loginUser = (String) request.getAttribute(RESTCookieSessionFilter.LOGIN_USER);
@@ -53,19 +59,17 @@ public class CustomerREST {
 	
 	protected Logger logger =  Logger.getLogger(FlightService.class.getName());
 
-	@GET
-	@Path("/byid/{custid}")
-	@Produces("text/plain")
-	public Response getCustomer(@CookieParam("sessionid") String sessionid, @PathParam("custid") String customerid) {
+	@RequestMapping(value = "/byid/{custid}", method = RequestMethod.GET, produces = "text/plain")
+	public ResponseEntity<String> getCustomer(@CookieValue(AcmeAirConstants.SESSIONID_COOKIE_NAME) String sessionid, @PathVariable("custid") String customerid) {
 		if(logger.isLoggable(Level.FINE)){
 			logger.fine("getCustomer : session ID " + sessionid + " userid " + customerid);
 		}
 		try {
 			// make sure the user isn't trying to update a customer other than the one currently logged in
 			if (!validate(customerid)) {
-				return Response.status(Response.Status.FORBIDDEN).build();
+				return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 			}
-			return Response.ok(customerService.getCustomerByUsername(customerid)).build();
+			return new ResponseEntity<>(customerService.getCustomerByUsername(customerid), HttpStatus.OK);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -73,21 +77,20 @@ public class CustomerREST {
 		}
 	}
 
-	@POST
-	@Path("/byid/{custid}")
-	@Produces("text/plain")
-	public /* Customer */ Response putCustomer(@CookieParam("sessionid") String sessionid, CustomerInfo customer) {
+	@RequestMapping(value = "/byid/{custid}", method = RequestMethod.POST, consumes = "application/json", produces = "text/plain")
+	public /* Customer */ ResponseEntity<String> putCustomer(@CookieValue(AcmeAirConstants.SESSIONID_COOKIE_NAME) String sessionid, @RequestBody CustomerInfo customer) {
 
 		if (customer == null)
 		{
 			logger.severe("Missing customerInfo for session "+sessionid);
-			return Response.status(500).build();
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-
+		System.out.println(customer);
+		System.out.println(customer.get_id());
 		String username = customer.get_id();
 		
 		if (!validate(username)) {
-			return Response.status(Response.Status.FORBIDDEN).build();
+			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 		}
 		
 		String customerFromDB = customerService.getCustomerByUsernameAndPassword(username, customer.getPassword());
@@ -97,14 +100,14 @@ public class CustomerREST {
 
 		if (customerFromDB == null) {
 			// either the customer doesn't exist or the password is wrong
-			return Response.status(Response.Status.FORBIDDEN).build();
+			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 		}
 		
 		customerService.updateCustomer(username, customer);
 		
 		//Retrieve the latest results
 		customerFromDB = customerService.getCustomerByUsernameAndPassword(username, customer.getPassword());
-		return Response.ok(customerFromDB).build();
+		return new ResponseEntity<>(customerFromDB, HttpStatus.OK);
 	}
 	
 

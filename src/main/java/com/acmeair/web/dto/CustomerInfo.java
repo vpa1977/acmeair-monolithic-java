@@ -17,40 +17,24 @@ package com.acmeair.web.dto;
 
 import java.io.Serializable;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
-
-@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
-@XmlRootElement(name="Customer")
 public class CustomerInfo implements Serializable{
 
 	
 	private static final long serialVersionUID = 1L;
-	@XmlElement(name="_id")
 	private String _id;
 	
-	@XmlElement(name="password")
 	private String password;
 	
-	@XmlElement(name="status")
 	private String status;
 	
-	@XmlElement(name="total_miles")
 	private int total_miles;
 	
-	@XmlElement(name="miles_ytd")
 	private int miles_ytd;
 
-	@XmlElement(name="address")
 	private AddressInfo address;
 	
-	@XmlElement(name="phoneNumber")
 	private String phoneNumber;
 	
-	@XmlElement(name="phoneNumberType")
 	private String phoneNumberType;
 	
 	public CustomerInfo() {

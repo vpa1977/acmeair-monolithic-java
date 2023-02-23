@@ -15,46 +15,42 @@
 *******************************************************************************/
 package com.acmeair.service;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-import javax.inject.Inject;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 
 public abstract class AuthService {
 	protected static final int DAYS_TO_ALLOW_SESSION = 1;
 
-	@Inject
+	@Autowired
 	protected KeyGenerator keyGenerator;
+	
+	private Gson gson = new GsonBuilder().create();
 
 
 
 	// TODO: Do I really need to create a JSONObject here or just return a Json string?
-	public JSONObject validateSession(String sessionid) {
+	public JsonObject validateSession(String sessionid) {
 		String cSession = getSession(sessionid);
 		if (cSession == null) {
 			return null;
 		}
 
-		try{
-			Date now = new Date();
-			JSONObject sessionJson = (JSONObject) new JSONParser().parse(cSession);
-			String timeoutString = sessionJson.get("timeoutTime").toString();
-			if (now.getTime() > (Long)new JSONParser().parse(timeoutString)) {
-				removeSession(cSession);
-				return null;
-			}
-
-			return sessionJson;
-		}catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		Date now = new Date();
+		JsonObject sessionJson = gson.fromJson(cSession, JsonObject.class);
+		Long timeout = sessionJson.get("timeoutTime").getAsLong();
+		if (now.getTime() > timeout) {
+			removeSession(cSession);
 			return null;
 		}
+
+		return sessionJson;
 	}
 
 	protected abstract String getSession(String sessionid);
@@ -63,7 +59,7 @@ public abstract class AuthService {
 
 	// TODO: Do I really need to create a JSONObject here or just return a Json string?
 	// TODO: Maybe simplify as Moss did, but need to change node.js version first
-	public JSONObject createSession(String customerId) {
+	public JsonObject createSession(String customerId) {
 		String sessionId = keyGenerator.generate().toString();
 		Date now = new Date();
 		Calendar c = Calendar.getInstance();
@@ -71,11 +67,11 @@ public abstract class AuthService {
 		c.add(Calendar.DAY_OF_YEAR, DAYS_TO_ALLOW_SESSION);
 		Date expiration = c.getTime();
 
-		JSONObject sessionJson = null;
+		JsonObject sessionJson = null;
 
 		try{
-			sessionJson = (JSONObject) new JSONParser().parse(createSession(sessionId, customerId, now, expiration));
-		} catch (ParseException e) {
+			sessionJson = gson.fromJson(createSession(sessionId, customerId, now, expiration), JsonObject.class);
+		} catch (JsonSyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;
