@@ -38,7 +38,7 @@ public class BookingsREST {
 	public /*BookingInfo*/ ResponseEntity<String> bookFlights(
 			@RequestParam("userid") String userid,
 			@RequestParam("toFlightId") String toFlightId,
-			@RequestParam("toFlightSegId") String toFlightSegId,
+			@RequestParam(name = "toFlightSegId" , defaultValue = "") String toFlightSegId,
 			@RequestParam(name = "retFlightId", defaultValue = "") String retFlightId,
 			@RequestParam(name = "retFlightSegId", defaultValue = "") String retFlightSegId,
 			@RequestParam(name = "oneWayFlight", defaultValue =  "true") boolean oneWay) {
