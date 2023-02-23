@@ -49,10 +49,7 @@ class EndpointNotLoggedInTest extends BaseTest {
 
 		ResponseEntity<String> response = restTemplate.exchange(re, String.class);
 
-		assertEquals(HttpStatus.OK, response.getStatusCode(), "Incorrect response code from " + url);
-
-		String result = response.getBody();
-		assertThat(result, containsString(CUSTOMER_RESPONSE_2));
+		assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode(), "Incorrect response code from " + url);
 	}
 
 	@Test
