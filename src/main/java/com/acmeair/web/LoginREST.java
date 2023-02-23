@@ -56,7 +56,7 @@ public class LoginREST {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-      		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+      		return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 		}
 	}
 
