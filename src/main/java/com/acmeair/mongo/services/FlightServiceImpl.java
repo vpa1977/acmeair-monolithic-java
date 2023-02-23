@@ -101,16 +101,19 @@ public class FlightServiceImpl extends FlightService implements  MongoConstants 
 	@Override
 	protected  List<String> getFlightBySegment(String segment, Date deptDate){
 		try {
-			com.google.gson.JsonObject segmentJson = gson.fromJson(segment, com.google.gson.JsonObject.class);
+			Document segmentJson = Document.parse(segment);
 			MongoCursor<Document> cursor;
 
 			if(deptDate != null) {
 				if(logger.isLoggable(Level.FINE)){
 					logger.fine("getFlghtBySegment Search String : " + new BasicDBObject("flightSegmentId", segmentJson.get("_id")).append("scheduledDepartureTime", deptDate).toJson());
 				}
-				cursor = flight.find(new BasicDBObject("flightSegmentId", segmentJson.get("_id")).append("scheduledDepartureTime", deptDate)).iterator();
+				cursor = flight.find(new BasicDBObject("flightSegmentId", 
+						segmentJson.get("_id"))
+						.append("scheduledDepartureTime", deptDate)).iterator();
 			} else {
-				cursor = flight.find(eq("flightSegmentId", segmentJson.get("_id"))).iterator();
+				cursor = flight.find(eq("flightSegmentId", 
+						segmentJson.get("_id"))).iterator();
 			}
 			
 			List<String> flights =  new ArrayList<String>();
@@ -132,7 +135,7 @@ public class FlightServiceImpl extends FlightService implements  MongoConstants 
 					if(logger.isLoggable(Level.FINE)){
 						logger.fine("getFlghtBySegment after : " + tempDoc.toJson());
 					}
-
+					
 					flights.add(tempDoc.append("flightSegment", segmentJson).toJson());
 				}
 			}finally{
