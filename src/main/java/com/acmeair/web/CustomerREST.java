@@ -22,11 +22,13 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -75,15 +77,16 @@ public class CustomerREST {
 		}
 	}
 
-	@RequestMapping(value = "/byid/{custid}", method = RequestMethod.POST, produces = "text/plain")
-	public /* Customer */ ResponseEntity<String> putCustomer(@CookieValue(AcmeAirConstants.SESSIONID_COOKIE_NAME) String sessionid, CustomerInfo customer) {
+	@RequestMapping(value = "/byid/{custid}", method = RequestMethod.POST, consumes = "application/json", produces = "text/plain")
+	public /* Customer */ ResponseEntity<String> putCustomer(@CookieValue(AcmeAirConstants.SESSIONID_COOKIE_NAME) String sessionid, @RequestBody CustomerInfo customer) {
 
 		if (customer == null)
 		{
 			logger.severe("Missing customerInfo for session "+sessionid);
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-
+		System.out.println(customer);
+		System.out.println(customer.get_id());
 		String username = customer.get_id();
 		
 		if (!validate(username)) {

@@ -41,8 +41,9 @@ public class RESTCookieSessionFilter implements Filter {
 
 	private static final String LOGIN_PATH = "/rest/api/login";
 	// private static final String LOGOUT_PATH = "/rest/api/login/logout";
-	private static final String LOADDB_PATH = "/rest/api/loader/load";
+	private static final String LOADDB_PATH = "/rest/info/loader/load";
 	private static final String QUERY_PATH = "/rest/api/flights/queryflights";
+	private static final String COUNT_SESSIONS =  "/rest/info/config/countSessions";
 
 	@Autowired
 	AuthService authService;
@@ -65,7 +66,7 @@ public class RESTCookieSessionFilter implements Filter {
 			path = request.getContextPath() + request.getServletPath() + request.getPathInfo();
 		}
 
-		if (path.endsWith(LOGIN_PATH) || path.endsWith(LOADDB_PATH) || path.endsWith(QUERY_PATH)) {
+		if (path.endsWith(LOGIN_PATH) || path.endsWith(LOADDB_PATH) || path.endsWith(QUERY_PATH) || path.endsWith(COUNT_SESSIONS)) {
 			// if logging in, logging out, or loading the database, let the request flow
 			chain.doFilter(req, resp);
 			return;

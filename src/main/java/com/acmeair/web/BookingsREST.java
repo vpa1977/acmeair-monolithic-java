@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.acmeair.service.BookingService;
 
 @RestController
-@RequestMapping("/api/customer")
+@RequestMapping("/api/bookings")
 public class BookingsREST {
 
 	@Autowired
@@ -39,9 +39,9 @@ public class BookingsREST {
 			@RequestParam("userid") String userid,
 			@RequestParam("toFlightId") String toFlightId,
 			@RequestParam("toFlightSegId") String toFlightSegId,
-			@RequestParam("retFlightId") String retFlightId,
-			@RequestParam("retFlightSegId") String retFlightSegId,
-			@RequestParam("oneWayFlight") boolean oneWay) {
+			@RequestParam(name = "retFlightId", defaultValue = "") String retFlightId,
+			@RequestParam(name = "retFlightSegId", defaultValue = "") String retFlightSegId,
+			@RequestParam(name = "oneWayFlight", defaultValue =  "true") boolean oneWay) {
 		try {
 			String bookingIdTo = bs.bookFlight(userid, toFlightSegId, toFlightId);
 			
