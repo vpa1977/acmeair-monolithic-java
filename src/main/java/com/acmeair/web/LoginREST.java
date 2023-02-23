@@ -15,6 +15,8 @@
 *******************************************************************************/
 package com.acmeair.web;
 
+import java.util.logging.Logger;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.acmeair.AcmeAirConstants;
+import com.acmeair.loader.Loader;
 import com.acmeair.service.AuthService;
 import com.acmeair.service.CustomerService;
 import com.google.gson.JsonObject;
@@ -33,6 +36,8 @@ import com.google.gson.JsonObject;
 @RestController
 @RequestMapping("/api")
 public class LoginREST {
+	
+	private static Logger logger = Logger.getLogger(LoginREST.class.getName());
 
 	@Autowired
 	AuthService authService;
@@ -64,12 +69,12 @@ public class LoginREST {
 	public ResponseEntity<String> logout(@RequestParam("login") String login, @CookieValue("acmeair_sessionid") String sessionid) {
 		try {
 			if (sessionid == null) {
-				System.out.println("sessionid is null");
+				logger.info("sessionid is null");
 				return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 			}
 			if (sessionid.equals(""))
 			{
-				System.out.println("sessionid is empty");
+				logger.info("sessionid is empty");
 			} else {
 				authService.invalidateSession(sessionid);
 			}

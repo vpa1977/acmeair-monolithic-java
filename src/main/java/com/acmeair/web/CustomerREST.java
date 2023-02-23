@@ -85,8 +85,6 @@ public class CustomerREST {
 			logger.severe("Missing customerInfo for session "+sessionid);
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		System.out.println(customer);
-		System.out.println(customer.get_id());
 		String username = customer.get_id();
 		
 		if (!validate(username)) {

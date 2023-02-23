@@ -27,7 +27,6 @@ public class CustomerLoader {
 	CustomerService customerService;
 
 	public void dropCustomers() {		
-		System.out.println(customerService);		
 		customerService.dropCustomers();
 	}
 	
