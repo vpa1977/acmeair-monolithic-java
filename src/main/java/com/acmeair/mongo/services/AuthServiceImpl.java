@@ -4,7 +4,7 @@ import static com.mongodb.client.model.Filters.eq;
 
 import java.util.Date;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import org.bson.Document;
 import org.springframework.stereotype.Component;

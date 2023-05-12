@@ -4,7 +4,7 @@ import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Updates.combine;
 import static com.mongodb.client.model.Updates.set;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import org.bson.Document;
 import org.springframework.stereotype.Component;
@@ -20,7 +20,7 @@ import com.acmeair.mongo.ConnectionManager;
 @Component
 public class CustomerServiceImpl extends CustomerService implements MongoConstants {
 
-//	private final static Logger logger = Logger.getLogger(CustomerService.class.getName()); 
+//	private final static Logger logger = Logger.getLogger(CustomerService.class.getName());
 
 	private MongoCollection<Document> customer;
 
