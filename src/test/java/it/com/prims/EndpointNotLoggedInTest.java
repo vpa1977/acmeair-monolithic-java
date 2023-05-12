@@ -38,7 +38,7 @@ class EndpointNotLoggedInTest extends BaseTest {
 	@Test
 	public void test05_getCustomerBad() throws InterruptedException {
 		String url = BASE_URL_WITH_CONTEXT_ROOT + CUSTOMER_ENDPOINT + "/" + USERNAME;
-		HttpStatus response = restTemplate.getForEntity(url, String.class).getStatusCode();
+		var response = restTemplate.getForEntity(url, String.class).getStatusCode();
 		assertEquals(HttpStatus.FORBIDDEN, response, "Incorrect response code from " + url);
 	}
 
