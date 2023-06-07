@@ -30,6 +30,8 @@ import de.flapdoodle.embed.mongo.config.Net;
 import de.flapdoodle.embed.mongo.distribution.Version.Main;
 import de.flapdoodle.embed.process.runtime.Network;
 
+import com.acmeair.mongo.ConnectionManager;
+
 public abstract class BaseTest {
 	static {
 		System.setProperty("spring.mongodb.embedded.version", "4.0.0");
@@ -92,6 +94,7 @@ public abstract class BaseTest {
 	protected static String date;
 
 	private static MongodExecutable mongodExe;
+	private static final int RETRIES = 30;
 
 	@BeforeAll
 	public static void oneTimeSetup() throws UnknownHostException, IOException {
@@ -108,7 +111,18 @@ public abstract class BaseTest {
 
 		mongodExe = starter.prepare(mongodConfig);
 		mongodExe.start();
-
+		for (int i = 0; i < RETRIES; ++i){
+			try {
+				if (ConnectionManager.getConnectionManager().getDB() != null)
+					return;
+			} catch (Throwable t){
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+				}
+			}
+		}
+		throw new RuntimeException("Unable to start mongodb server on localhost:27017");
 	}
 
 	@AfterAll
