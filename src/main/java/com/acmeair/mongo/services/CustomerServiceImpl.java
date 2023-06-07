@@ -39,13 +39,14 @@ public class CustomerServiceImpl extends CustomerService implements MongoConstan
 	public void createCustomer(String username, String password, String status, int total_miles, int miles_ytd,
 			String phoneNumber, String phoneNumberType, String addressJson) {
 
-		new Document();
 		Document customerDoc = new Document("_id", username).append("password", password).append("status", status)
 				.append("total_miles", total_miles).append("miles_ytd", miles_ytd)
 				.append("address", Document.parse(addressJson)).append("phoneNumber", phoneNumber)
 				.append("phoneNumberType", phoneNumberType);
 
 		customer.insertOne(customerDoc);
+		if (!customer.find(eq("_id", username)).cursor().hasNext())
+				throw new RuntimeException("Failed to insert customer");
 	}
 
 	@Override
