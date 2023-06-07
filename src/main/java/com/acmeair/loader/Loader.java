@@ -39,6 +39,7 @@ public class Loader {
 	public static String REPOSITORY_LOOKUP_KEY = "com.acmeair.repository.type";
 
 	private static Logger logger = Logger.getLogger(Loader.class.getName());
+	private static final int RETRIES = 30;
 
 	public String queryLoader() {
 		String message = System.getProperty("loader.numCustomers");
@@ -103,26 +104,33 @@ public class Loader {
 	}
 
 	private String execute(long numCustomers) {
-
 		double length = 0;
-		try {
-			long start = System.currentTimeMillis();
-			logger.info("Start loading flights");
-			customerLoader.dropCustomers();
-			flightLoader.dropFlights();
-			sessionLoader.dropSessions();
-			bookingLoader.dropBookings();
-
-			flightLoader.loadFlights();
-			logger.info("Start loading " + numCustomers + " customers");
-			customerLoader.loadCustomers(numCustomers);
-			long stop = System.currentTimeMillis();
-			logger.info("Finished loading in " + (stop - start) / 1000.0 + " seconds");
-			length = (stop - start) / 1000.0;
-		} catch (Exception e) {
-			e.printStackTrace();
+		for (int i=0; i < RETRIES; ++i){
+			try {
+				long start = System.currentTimeMillis();
+				logger.info("Start loading flights");
+				customerLoader.dropCustomers();
+				flightLoader.dropFlights();
+				sessionLoader.dropSessions();
+				bookingLoader.dropBookings();
+	
+				flightLoader.loadFlights();
+				logger.info("Start loading " + numCustomers + " customers");
+				customerLoader.loadCustomers(numCustomers);
+				long stop = System.currentTimeMillis();
+				logger.info("Finished loading in " + (stop - start) / 1000.0 + " seconds");
+				length = (stop - start) / 1000.0;
+				return "Loaded flights and " + numCustomers + " customers in " + length + " seconds";
+			} catch (Exception e) {
+				e.printStackTrace();
+				try {
+					Thread.sleep(1000);
+				}
+				catch (InterruptedException ie) {
+				}
+			}
 		}
-		return "Loaded flights and " + numCustomers + " customers in " + length + " seconds";
+		throw new RuntimeException("Failed to load flights and customers");
 	}
 
 	private String executeCustomerDB(long numCustomers) {
