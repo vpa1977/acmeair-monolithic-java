@@ -117,6 +117,7 @@ public class ConnectionManager implements MongoConstants {
 			logger.info("#### Mongo DB is created with DB name " + dbname + " ####");
 		} catch (Exception e) {
 			logger.severe("Caught Exception : " + e.getMessage());
+			throw e;
 		}
 
 	}
