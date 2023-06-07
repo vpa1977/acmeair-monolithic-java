@@ -81,7 +81,10 @@ public class CustomerServiceImpl extends CustomerService implements MongoConstan
 
 	@Override
 	protected String getCustomer(String username) {
-		return customer.find(eq("_id", username)).first().toJson();
+		Document customerDoc = customer.find(eq("_id", username)).first();
+		if (customerDoc == null)
+			throw new RuntimeException("Customer " + username + " not found");
+		return customerDoc.toJson();
 	}
 
 	@Override
