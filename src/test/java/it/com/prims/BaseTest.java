@@ -104,8 +104,9 @@ public abstract class BaseTest {
 		ZonedDateTime nowChanged = now.toLocalDate().atStartOfDay(now.getZone());
 		date = nowChanged.format(dtf) + " 00:00:00 UTC 2020";
 
+        int port = Integer.parseInt(System.getenv("MONGO_PORT") == null? "27017":System.getenv("MONGO_PORT"));
 		ImmutableMongodConfig mongodConfig = MongodConfig.builder().version(Main.V4_0)
-				.net(new Net("localhost", 27017, Network.localhostIsIPv6())).build();
+				.net(new Net("127.0.0.1", port, Network.localhostIsIPv6())).build();
 
 		MongodStarter starter = MongodStarter.getDefaultInstance();
 
